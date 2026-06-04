@@ -18,6 +18,9 @@ import ProtectedRoute from "./ProtectedRoute"
 import useAuthStore from "../store/authStore"
 import { getDashboardRoute } from "../utils/roleUtils"
 import LeadDetail from "../features/leads/LeadDetail"
+import TaskList from "../features/tasks/TaskList"
+import TaskForm from "../features/tasks/TaskForm"
+import TaskDetail from "../features/tasks/TaskDetail"
 
 function DashboardRedirect() {
   const user = useAuthStore((s) => s.user)
@@ -48,6 +51,9 @@ export default function AppRouter() {
           <Route path="/leads" element={<LeadList />} />
           <Route path="/leads/new" element={<LeadForm />} />
           <Route path="/leads/:id" element={<LeadDetail />} />
+          <Route path="/tasks" element={<TaskList />} />
+          <Route path="/tasks/new" element={<TaskForm />} />
+          <Route path="/tasks/:id" element={<TaskDetail />} />
         </Route>
       </Route>
     </Routes>
