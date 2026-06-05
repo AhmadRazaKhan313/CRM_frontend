@@ -21,11 +21,9 @@ import LeadDetail from "../features/leads/LeadDetail"
 import TaskList from "../features/tasks/TaskList"
 import TaskForm from "../features/tasks/TaskForm"
 import TaskDetail from "../features/tasks/TaskDetail"
-// import ClientDetail from "../features/clients/ClientDetail"
-import ReportList from "../features/reports/ReportList"
-import ReportForm from "../features/reports/ReportForm"
-import ReportDetail from "../features/reports/ReportDetail"
-
+import ClientList from "../features/clients/ClientList"
+import ClientForm from "../features/clients/ClientForm"
+import ClientDetail from "../features/clients/ClientDetail"
 
 function DashboardRedirect() {
   const user = useAuthStore((s) => s.user)
@@ -59,11 +57,9 @@ export default function AppRouter() {
           <Route path="/tasks" element={<TaskList />} />
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskDetail />} />
-          <Route path="/reports" element={<ReportList />} />
-          {/* <Route path="/clients/:id" element={<ClientDetail />} /> */}
-          
-<Route path="/reports/new" element={<ReportForm />} />
-<Route path="/reports/:id" element={<ReportDetail />} />
+          <Route path="/clients" element={<ClientList />} />
+<Route path="/clients/new" element={<ClientForm />} />
+<Route path="/clients/:id" element={<ClientDetail />} />
 
         </Route>
       </Route>
