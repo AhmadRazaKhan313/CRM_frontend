@@ -1,41 +1,37 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { Plus, Trash2, Pencil, ShieldCheck } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import rolesApi from "../../api/roles"
+import useRoleStore from "../../store/roleStore"
+
+const moduleColors = {
+  leads: "bg-blue-50 text-blue-600",
+  clients: "bg-green-50 text-green-600",
+  sales: "bg-yellow-50 text-yellow-600",
+  tasks: "bg-purple-50 text-purple-600",
+  reports: "bg-orange-50 text-orange-600",
+  finance: "bg-red-50 text-red-600",
+  employees: "bg-indigo-50 text-indigo-600",
+  departments: "bg-pink-50 text-pink-600",
+  delivery: "bg-teal-50 text-teal-600",
+  analytics: "bg-cyan-50 text-cyan-600",
+  settings: "bg-gray-100 text-gray-600",
+}
 
 export default function RoleList() {
   const navigate = useNavigate()
-  const [roleList, setRoleList] = useState([])
-  const [loading, setLoading] = useState(true)
+  const { roles, loading, fetch, remove } = useRoleStore()
 
-  useEffect(() => {
-    rolesApi.list()
-      .then(({ data }) => setRoleList(data))
-      .finally(() => setLoading(false))
-  }, [])
+  useEffect(() => { fetch() }, [])
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this role?")) return
     try {
       await rolesApi.remove(id)
-      setRoleList((prev) => prev.filter((r) => r.id !== id))
+      remove(id)
     } catch (err) {
       alert(err.response?.data?.detail || "Cannot delete role.")
     }
-  }
-
-  const moduleColors = {
-    leads: "bg-blue-50 text-blue-600",
-    clients: "bg-green-50 text-green-600",
-    sales: "bg-yellow-50 text-yellow-600",
-    tasks: "bg-purple-50 text-purple-600",
-    reports: "bg-orange-50 text-orange-600",
-    finance: "bg-red-50 text-red-600",
-    employees: "bg-indigo-50 text-indigo-600",
-    departments: "bg-pink-50 text-pink-600",
-    delivery: "bg-teal-50 text-teal-600",
-    analytics: "bg-cyan-50 text-cyan-600",
-    settings: "bg-gray-100 text-gray-600",
   }
 
   if (loading) {
@@ -62,7 +58,7 @@ export default function RoleList() {
         </button>
       </div>
 
-      {roleList.length === 0 ? (
+      {roles.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center">
           <ShieldCheck className="w-10 h-10 text-gray-200 mx-auto mb-3" />
           <p className="text-sm font-medium text-gray-500">No roles yet</p>
@@ -70,7 +66,7 @@ export default function RoleList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {roleList.map((role) => (
+          {roles.map((role) => (
             <div key={role.id} className="bg-white rounded-2xl p-5">
               <div className="flex items-start justify-between mb-4">
                 <div>

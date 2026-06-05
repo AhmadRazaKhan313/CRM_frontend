@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react"
-import { Plus, Search, UserCheck, UserX, ChevronDown } from "lucide-react"
+import { useEffect } from "react"
+import { Plus, Search, UserX, ChevronDown } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { Icon } from "@iconify/react"
 import employeesApi from "../../api/employees"
+import useEmployeeStore from "../../store/employeeStore"
 
 const DEPARTMENTS = ["academic", "tech", "seo"]
 const ROLES = [
@@ -28,39 +29,18 @@ const roleColors = {
 
 export default function EmployeeList() {
   const navigate = useNavigate()
-  const [list, setList] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
-  const [filters, setFilters] = useState({ department: "", role: "" })
+  const { employees, loading, filters, setFilters, fetch } = useEmployeeStore()
 
-  const fetchEmployees = () => {
-    setLoading(true)
-    const params = {}
-    if (search) params.search = search
-    if (filters.department) params.department = filters.department
-    if (filters.role) params.role = filters.role
-    employeesApi.list(params)
-      .then(({ data }) => setList(data))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    fetchEmployees()
-  }, [filters])
-
-  const handleSearch = (e) => {
-    if (e.key === "Enter") fetchEmployees()
-  }
+  useEffect(() => { fetch() }, [filters])
 
   const handleDeactivate = async (id) => {
     if (!window.confirm("Deactivate this employee?")) return
     await employeesApi.deactivate(id)
-    fetchEmployees()
+    fetch()
   }
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-xs text-gray-400 mb-0.5">Management</p>
@@ -80,19 +60,18 @@ export default function EmployeeList() {
         <div className="flex-1 flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2">
           <Search className="w-4 h-4 text-gray-300 shrink-0" />
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={handleSearch}
+            value={filters.search || ""}
+            onChange={(e) => setFilters({ search: e.target.value })}
+            onKeyDown={(e) => e.key === "Enter" && fetch()}
             placeholder="Search by name or email..."
             className="flex-1 text-sm text-gray-700 placeholder-gray-300 outline-none"
           />
         </div>
 
-        {/* Department Filter */}
         <div className="relative">
           <select
             value={filters.department}
-            onChange={(e) => setFilters((p) => ({ ...p, department: e.target.value }))}
+            onChange={(e) => setFilters({ department: e.target.value })}
             className="appearance-none border border-gray-200 rounded-xl px-4 py-2 pr-8 text-sm text-gray-600 outline-none focus:border-primary bg-white"
           >
             <option value="">All Departments</option>
@@ -103,11 +82,10 @@ export default function EmployeeList() {
           <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
         </div>
 
-        {/* Role Filter */}
         <div className="relative">
           <select
             value={filters.role}
-            onChange={(e) => setFilters((p) => ({ ...p, role: e.target.value }))}
+            onChange={(e) => setFilters({ role: e.target.value })}
             className="appearance-none border border-gray-200 rounded-xl px-4 py-2 pr-8 text-sm text-gray-600 outline-none focus:border-primary bg-white"
           >
             <option value="">All Roles</option>
@@ -125,7 +103,7 @@ export default function EmployeeList() {
           <div className="flex items-center justify-center h-48">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : list.length === 0 ? (
+        ) : employees.length === 0 ? (
           <div className="text-center py-16">
             <Icon icon="lucide:users" className="w-10 h-10 text-gray-200 mx-auto mb-3" />
             <p className="text-sm font-medium text-gray-500">No employees found</p>
@@ -144,7 +122,7 @@ export default function EmployeeList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {list.map((emp) => (
+              {employees.map((emp) => (
                 <tr key={emp.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
@@ -180,9 +158,7 @@ export default function EmployeeList() {
                   <td className="px-5 py-3.5">
                     <div className="flex flex-wrap gap-1">
                       {emp.assigned_roles.length > 0 ? emp.assigned_roles.map((r, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-lg">
-                          {r}
-                        </span>
+                        <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-lg">{r}</span>
                       )) : (
                         <span className="text-xs text-gray-300">No custom roles</span>
                       )}
@@ -206,14 +182,12 @@ export default function EmployeeList() {
                       <button
                         onClick={() => navigate(`/employees/${emp.id}/edit`)}
                         className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                        title="Edit"
                       >
                         <Icon icon="lucide:pencil" className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeactivate(emp.id)}
                         className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
-                        title="Deactivate"
                       >
                         <UserX className="w-3.5 h-3.5" />
                       </button>
