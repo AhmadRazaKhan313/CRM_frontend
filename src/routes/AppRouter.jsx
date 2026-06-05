@@ -12,10 +12,6 @@ import EmployeeList from "../features/employees/EmployeeList"
 import EmployeeForm from "../features/employees/EmployeeForm"
 import LeadList from "../features/leads/LeadList"
 import LeadForm from "../features/leads/LeadForm"
-import PageWrapper from "../components/layout/PageWrapper"
-import ProtectedRoute from "./ProtectedRoute"
-import useAuthStore from "../store/authStore"
-import { getDashboardRoute } from "../utils/roleUtils"
 import LeadDetail from "../features/leads/LeadDetail"
 import TaskList from "../features/tasks/TaskList"
 import TaskForm from "../features/tasks/TaskForm"
@@ -23,6 +19,13 @@ import TaskDetail from "../features/tasks/TaskDetail"
 import ClientList from "../features/clients/ClientList"
 import ClientForm from "../features/clients/ClientForm"
 import ClientDetail from "../features/clients/ClientDetail"
+import ReportList from "../features/reports/ReportList"
+import ReportForm from "../features/reports/ReportForm"
+import ReportDetail from "../features/reports/ReportDetail"
+import PageWrapper from "../components/layout/PageWrapper"
+import ProtectedRoute from "./ProtectedRoute"
+import useAuthStore from "../store/authStore"
+import { getDashboardRoute } from "../utils/roleUtils"
 
 function DashboardRedirect() {
   const user = useAuthStore((s) => s.user)
@@ -55,6 +58,12 @@ export default function AppRouter() {
           <Route path="/tasks" element={<TaskList />} />
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskDetail />} />
+          <Route path="/clients" element={<ClientList />} />
+          <Route path="/clients/new" element={<ClientForm />} />
+          <Route path="/clients/:id" element={<ClientDetail />} />
+          <Route path="/reports" element={<ReportList />} />
+          <Route path="/reports/new" element={<ReportForm />} />
+          <Route path="/reports/:id" element={<ReportDetail />} />
         </Route>
       </Route>
     </Routes>
