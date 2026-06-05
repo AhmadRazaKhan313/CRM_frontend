@@ -6,7 +6,6 @@ import CEODashboard from "../features/dashboard/roles/CEODashboard"
 import DeptHeadDashboard from "../features/dashboard/roles/DeptHeadDashboard"
 import ManagerDashboard from "../features/dashboard/roles/ManagerDashboard"
 import EmployeeDashboard from "../features/dashboard/roles/EmployeeDashboard"
-import NewAcademicClient from "../features/clients/NewAcademicClient"
 import RoleList from "../features/roles/RoleList"
 import RoleForm from "../features/roles/RoleForm"
 import EmployeeList from "../features/employees/EmployeeList"
@@ -44,7 +43,6 @@ export default function AppRouter() {
           <Route path="/dashboard/dept-head" element={<DeptHeadDashboard />} />
           <Route path="/dashboard/manager" element={<ManagerDashboard />} />
           <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
-          <Route path="/clients/academic/new" element={<NewAcademicClient />} />
           <Route path="/roles" element={<RoleList />} />
           <Route path="/roles/new" element={<RoleForm />} />
           <Route path="/roles/:id/edit" element={<RoleForm />} />
@@ -58,9 +56,8 @@ export default function AppRouter() {
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskDetail />} />
           <Route path="/clients" element={<ClientList />} />
-<Route path="/clients/new" element={<ClientForm />} />
-<Route path="/clients/:id" element={<ClientDetail />} />
-
+          <Route path="/clients/new" element={<ClientForm />} />
+          <Route path="/clients/:id" element={<ClientDetail />} />
         </Route>
       </Route>
     </Routes>
