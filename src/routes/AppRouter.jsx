@@ -55,9 +55,6 @@ export default function AppRouter() {
           <Route path="/tasks" element={<TaskList />} />
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskDetail />} />
-          <Route path="/clients" element={<ClientList />} />
-          <Route path="/clients/new" element={<ClientForm />} />
-          <Route path="/clients/:id" element={<ClientDetail />} />
         </Route>
       </Route>
     </Routes>
