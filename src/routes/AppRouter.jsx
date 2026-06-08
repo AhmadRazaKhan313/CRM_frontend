@@ -26,15 +26,12 @@ import PageWrapper from "../components/layout/PageWrapper"
 import ProtectedRoute from "./ProtectedRoute"
 import useAuthStore from "../store/authStore"
 import { getDashboardRoute } from "../utils/roleUtils"
-<<<<<<< Updated upstream
-=======
 import DepartmentList from "../features/departments/DepartmentList"
 import DepartmentDetail from "../features/departments/DepartmentDetail"
 import DepartmentForm from "../features/departments/DepartmentForm"
 import SuperAdminDashboard from "../features/superadmin/SuperAdminDashboard"
 import TenantList from "../features/superadmin/TenantList"
 import TenantDetail from "../features/superadmin/TenantDetail"
->>>>>>> Stashed changes
 
 function DashboardRedirect() {
   const user = useAuthStore((s) => s.user)
@@ -73,8 +70,6 @@ export default function AppRouter() {
           <Route path="/reports" element={<ReportList />} />
           <Route path="/reports/new" element={<ReportForm />} />
           <Route path="/reports/:id" element={<ReportDetail />} />
-<<<<<<< Updated upstream
-=======
           <Route path="/departments" element={<DepartmentList />} />
           <Route path="/departments/:id" element={<DepartmentDetail />} />
           <Route path="/departments/new" element={<DepartmentForm />} />
@@ -82,7 +77,6 @@ export default function AppRouter() {
           <Route path="/superadmin/tenants" element={<TenantList />} />
           <Route path="/superadmin/tenants/:id" element={<TenantDetail />} />
           
->>>>>>> Stashed changes
         </Route>
       </Route>
     </Routes>
