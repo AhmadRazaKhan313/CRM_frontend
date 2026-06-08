@@ -85,7 +85,7 @@ export default function TaskList() {
         {[
           { key: "status", options: ["pending", "in_progress", "completed", "delayed"], placeholder: "All Status" },
           { key: "priority", options: ["low", "medium", "high", "urgent"], placeholder: "All Priority" },
-          { key: "department", options: ["academic", "tech", "seo"], placeholder: "All Departments" },
+          { key: "department", options: ["sales", "tech", "seo"], placeholder: "All Departments" },
         ].map(({ key, options, placeholder }) => (
           <div key={key} className="relative">
             <select
