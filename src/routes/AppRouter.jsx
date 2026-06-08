@@ -28,6 +28,10 @@ import useAuthStore from "../store/authStore"
 import { getDashboardRoute } from "../utils/roleUtils"
 import DepartmentList from "../features/departments/DepartmentList"
 import DepartmentDetail from "../features/departments/DepartmentDetail"
+import DepartmentForm from "../features/departments/DepartmentForm"
+import SuperAdminDashboard from "../features/superadmin/SuperAdminDashboard"
+import TenantList from "../features/superadmin/TenantList"
+import TenantDetail from "../features/superadmin/TenantDetail"
 
 function DashboardRedirect() {
   const user = useAuthStore((s) => s.user)
@@ -68,6 +72,11 @@ export default function AppRouter() {
           <Route path="/reports/:id" element={<ReportDetail />} />
           <Route path="/departments" element={<DepartmentList />} />
           <Route path="/departments/:id" element={<DepartmentDetail />} />
+          <Route path="/departments/new" element={<DepartmentForm />} />
+          <Route path="/superadmin" element={<SuperAdminDashboard />} />
+          <Route path="/superadmin/tenants" element={<TenantList />} />
+          <Route path="/superadmin/tenants/:id" element={<TenantDetail />} />
+          
         </Route>
       </Route>
     </Routes>
