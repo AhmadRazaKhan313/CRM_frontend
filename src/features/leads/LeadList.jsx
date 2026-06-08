@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react"
 import useLeadStore from "../../store/leadStore"
 
 const STATUS_OPTIONS = ["new", "contacted", "interested", "follow_up", "converted", "rejected"]
-const DEPARTMENTS = ["academic", "tech", "seo"]
+const DEPARTMENTS = ["sales", "tech", "seo"]
 const SOURCES = ["instagram", "facebook", "linkedin", "whatsapp", "website", "email", "other"]
 
 const statusConfig = {
@@ -84,7 +84,7 @@ export default function LeadList() {
             value={filters.search}
             onChange={(e) => setFilters({ search: e.target.value })}
             onKeyDown={(e) => e.key === "Enter" && fetch()}
-            placeholder="Search by name or email..."
+            placeholder="Search by name..."
             className="flex-1 text-sm text-gray-700 placeholder-gray-300 outline-none"
           />
         </div>
@@ -129,6 +129,7 @@ export default function LeadList() {
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Source</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Department</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Contacted By</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Assigned To</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Created</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Actions</th>
@@ -139,20 +140,35 @@ export default function LeadList() {
                 <tr key={lead.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-5 py-3.5">
                     <p className="text-sm font-medium text-gray-800">{lead.full_name}</p>
-                    <p className="text-xs text-gray-400">{lead.email || lead.phone}</p>
+                    <p className="text-xs text-gray-400">{lead.country || "—"}</p>
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-1.5">
                       <Icon icon={sourceIcons[lead.source] || "mdi:dots-horizontal"} className="w-4 h-4 text-gray-400" />
-                      <span className="text-xs text-gray-600 capitalize">{lead.source}</span>
+                      <span className="text-xs text-gray-600 capitalize">{lead.source || "—"}</span>
                     </div>
+                    {lead.platform_link && (
+                      <a
+                        href={lead.platform_link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-primary hover:underline truncate block max-w-[120px]"
+                      >
+                        View Profile
+                      </a>
+                    )}
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="text-xs text-gray-600 capitalize">{lead.department}</span>
+                    <span className="text-xs text-gray-600 capitalize">{lead.department || "—"}</span>
                   </td>
                   <td className="px-5 py-3.5">
                     <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${statusConfig[lead.status]?.class}`}>
                       {statusConfig[lead.status]?.label}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="text-xs text-gray-600">
+                      {lead.contacted_by_name || <span className="text-gray-300">—</span>}
                     </span>
                   </td>
                   <td className="px-5 py-3.5">

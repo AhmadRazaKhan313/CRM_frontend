@@ -32,6 +32,16 @@ const activityColors = {
   status_change: "bg-orange-50 text-orange-600",
 }
 
+const sourceIcons = {
+  instagram: "mdi:instagram",
+  facebook: "mdi:facebook",
+  linkedin: "mdi:linkedin",
+  whatsapp: "mdi:whatsapp",
+  website: "mdi:web",
+  email: "mdi:email-outline",
+  other: "mdi:dots-horizontal",
+}
+
 const STATUSES = ["new", "contacted", "interested", "follow_up", "converted", "rejected"]
 const ACTIVITY_TYPES = ["note", "call", "email", "whatsapp", "meeting"]
 
@@ -119,21 +129,21 @@ export default function LeadDetail() {
       </div>
 
       <div className="grid grid-cols-3 gap-5">
-        {/* Left — Lead Info */}
+        {/* Left */}
         <div className="col-span-2 space-y-5">
+
           {/* Contact Info */}
           <div className="bg-white rounded-2xl p-5">
             <p className="text-sm font-semibold text-gray-800 mb-4">Contact Information</p>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Email", value: lead.email, icon: "lucide:mail" },
-                { label: "Phone", value: lead.phone, icon: "lucide:phone" },
                 { label: "Country", value: lead.country, icon: "lucide:map-pin" },
-                { label: "Company", value: lead.company, icon: "lucide:building-2" },
-                { label: "Source", value: lead.source, icon: "lucide:globe" },
                 { label: "Department", value: lead.department, icon: "lucide:layers" },
-                { label: "Service Interest", value: lead.service_interest, icon: "lucide:star" },
-                { label: "Created By", value: lead.created_by_name, icon: "lucide:user" },
+                { label: "Source", value: lead.source, icon: "lucide:globe" },
+                { label: "Contacted By", value: lead.contacted_by_name, icon: "lucide:phone" },
+                { label: "Assigned To", value: lead.assigned_to_name, icon: "lucide:user" },
+                { label: "Created By", value: lead.created_by_name, icon: "lucide:user-plus" },
+                { label: "Added On", value: new Date(lead.created_at).toLocaleDateString(), icon: "lucide:calendar" },
               ].map(({ label, value, icon }) => value ? (
                 <div key={label} className="flex items-start gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center shrink-0 mt-0.5">
@@ -147,30 +157,26 @@ export default function LeadDetail() {
               ) : null)}
             </div>
 
-            {/* Social Links */}
-            {(lead.instagram_url || lead.facebook_url || lead.linkedin_url) && (
-              <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
-                {lead.instagram_url && (
-                  <a href={lead.instagram_url} target="_blank" rel="noreferrer"
-                    className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center hover:bg-pink-100 transition-colors">
-                    <Icon icon="mdi:instagram" className="w-4 h-4 text-pink-500" />
-                  </a>
-                )}
-                {lead.facebook_url && (
-                  <a href={lead.facebook_url} target="_blank" rel="noreferrer"
-                    className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-colors">
-                    <Icon icon="mdi:facebook" className="w-4 h-4 text-blue-600" />
-                  </a>
-                )}
-                {lead.linkedin_url && (
-                  <a href={lead.linkedin_url} target="_blank" rel="noreferrer"
-                    className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center hover:bg-sky-100 transition-colors">
-                    <Icon icon="mdi:linkedin" className="w-4 h-4 text-sky-600" />
-                  </a>
-                )}
+            {/* Platform Link */}
+            {lead.platform_link && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <p className="text-xs text-gray-400 mb-1.5">Platform Link</p>
+                <a
+                  href={lead.platform_link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-sm text-primary hover:underline"
+                >
+                  <Icon
+                    icon={sourceIcons[lead.source] || "mdi:link"}
+                    className="w-4 h-4"
+                  />
+                  {lead.platform_link}
+                </a>
               </div>
             )}
 
+            {/* Notes */}
             {lead.notes && (
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <p className="text-xs text-gray-400 mb-1">Notes</p>
@@ -179,11 +185,18 @@ export default function LeadDetail() {
             )}
           </div>
 
-          {/* Add Activity */}
+          {/* Questionnaire */}
+          {lead.questionnaire && (
+            <div className="bg-white rounded-2xl p-5">
+              <p className="text-sm font-semibold text-gray-800 mb-3">Questionnaire</p>
+              <p className="text-sm text-gray-600 whitespace-pre-line">{lead.questionnaire}</p>
+            </div>
+          )}
+
+          {/* Log Activity */}
           <div className="bg-white rounded-2xl p-5">
             <p className="text-sm font-semibold text-gray-800 mb-4">Log Activity</p>
             <form onSubmit={handleAddActivity}>
-              {/* Activity Type */}
               <div className="flex gap-2 mb-3">
                 {ACTIVITY_TYPES.map((type) => (
                   <button
@@ -230,7 +243,7 @@ export default function LeadDetail() {
               </div>
             ) : (
               <div className="space-y-4">
-                {lead.activities?.map((act, i) => (
+                {lead.activities?.map((act) => (
                   <div key={act.id} className="flex gap-3">
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${activityColors[act.activity_type]}`}>
                       <Icon icon={activityIcons[act.activity_type]} className="w-3.5 h-3.5" />
@@ -239,7 +252,8 @@ export default function LeadDetail() {
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-medium text-gray-700 capitalize">{act.activity_type.replace("_", " ")}</p>
                         <p className="text-xs text-gray-400 shrink-0">
-                          {new Date(act.created_at).toLocaleDateString()} {new Date(act.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(act.created_at).toLocaleDateString()}{" "}
+                          {new Date(act.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
                       <p className="text-sm text-gray-600 mt-0.5">{act.note}</p>
@@ -254,8 +268,9 @@ export default function LeadDetail() {
           </div>
         </div>
 
-        {/* Right — Actions */}
+        {/* Right */}
         <div className="space-y-5">
+
           {/* Status Update */}
           <div className="bg-white rounded-2xl p-5">
             <p className="text-sm font-semibold text-gray-800 mb-3">Update Status</p>
@@ -313,10 +328,10 @@ export default function LeadDetail() {
             <div className="space-y-2.5">
               {[
                 { label: "Lead ID", value: `#${lead.id}` },
-                { label: "Created", value: new Date(lead.created_at).toLocaleDateString() },
-                { label: "Last Updated", value: new Date(lead.updated_at).toLocaleDateString() },
                 { label: "Department", value: lead.department },
                 { label: "Source", value: lead.source },
+                { label: "Created", value: new Date(lead.created_at).toLocaleDateString() },
+                { label: "Last Updated", value: new Date(lead.updated_at).toLocaleDateString() },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between">
                   <span className="text-xs text-gray-400">{label}</span>
