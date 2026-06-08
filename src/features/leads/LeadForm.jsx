@@ -7,6 +7,7 @@ import employeesApi from "../../api/employees"
 import useLeadStore from "../../store/leadStore"
 import COUNTRIES from "../../utils/countries"
 
+const SOURCES = ["instagram", "facebook", "linkedin", "whatsapp", "website", "email", "other"]
 const DEPARTMENTS = ["sales", "tech", "seo"]
 const STATUSES = ["new", "contacted", "interested", "follow_up", "converted", "rejected"]
 const PLATFORMS = [

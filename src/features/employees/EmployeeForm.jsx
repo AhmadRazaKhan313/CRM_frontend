@@ -4,7 +4,7 @@ import { User, Mail, Lock, Phone, ChevronDown } from "lucide-react"
 import employeesApi from "../../api/employees"
 import rolesApi from "../../api/roles"
 
-const DEPARTMENTS = ["academic", "tech", "seo"]
+const DEPARTMENTS = ["sales", "tech", "seo"]
 const ROLES = [
   { value: "coo", label: "COO" },
   { value: "dept_head", label: "Department Head" },

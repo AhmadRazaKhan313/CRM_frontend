@@ -5,14 +5,14 @@ import { Icon } from "@iconify/react"
 import employeesApi from "../../api/employees"
 import useEmployeeStore from "../../store/employeeStore"
 
-const DEPARTMENTS = ["academic", "tech", "seo"]
+const DEPARTMENTS = ["sales", "tech", "seo"]
 const ROLES = [
   "coo", "dept_head", "sales_director",
   "lead_manager", "sales_manager", "lead_employee", "sales_employee"
 ]
 
 const deptColors = {
-  academic: "bg-blue-50 text-blue-600",
+  sales : "bg-blue-50 text-blue-600",
   tech: "bg-purple-50 text-purple-600",
   seo: "bg-green-50 text-green-600",
 }
