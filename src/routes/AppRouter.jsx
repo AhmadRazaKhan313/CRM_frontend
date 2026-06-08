@@ -26,6 +26,8 @@ import PageWrapper from "../components/layout/PageWrapper"
 import ProtectedRoute from "./ProtectedRoute"
 import useAuthStore from "../store/authStore"
 import { getDashboardRoute } from "../utils/roleUtils"
+import DepartmentList from "../features/departments/DepartmentList"
+import DepartmentDetail from "../features/departments/DepartmentDetail"
 
 function DashboardRedirect() {
   const user = useAuthStore((s) => s.user)
@@ -64,6 +66,8 @@ export default function AppRouter() {
           <Route path="/reports" element={<ReportList />} />
           <Route path="/reports/new" element={<ReportForm />} />
           <Route path="/reports/:id" element={<ReportDetail />} />
+          <Route path="/departments" element={<DepartmentList />} />
+          <Route path="/departments/:id" element={<DepartmentDetail />} />
         </Route>
       </Route>
     </Routes>
