@@ -19,7 +19,7 @@ const tagConfig = {
 }
 
 const deptColors = {
-  academic: "bg-blue-50 text-blue-600",
+  sales: "bg-blue-50 text-blue-600",
   tech: "bg-purple-50 text-purple-600",
   seo: "bg-green-50 text-green-600",
 }
@@ -86,7 +86,7 @@ export default function ClientList() {
           />
         </div>
         {[
-          { key: "department", options: ["academic", "tech", "seo"], placeholder: "All Departments" },
+          { key: "department", options: ["sales", "tech", "seo"], placeholder: "All Departments" },
           { key: "status", options: ["active", "completed", "on_hold", "cancelled"], placeholder: "All Status" },
           { key: "tag", options: ["vip", "returning", "urgent", "high_budget"], placeholder: "All Tags" },
         ].map(({ key, options, placeholder }) => (

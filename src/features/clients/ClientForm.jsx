@@ -1,29 +1,30 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ChevronDown } from "lucide-react"
+import { Icon } from "@iconify/react"
 import clientsApi from "../../api/clients"
 import useClientStore from "../../store/clientStore"
 
-const DEPARTMENTS = ["academic", "tech", "seo"]
+const DEPARTMENTS = ["sales", "tech", "seo"]
 const TAGS = ["vip", "returning", "urgent", "high_budget"]
-
-const ACADEMIC_SERVICES = ["Assignment Help", "Thesis Support", "Dissertation", "Coursework", "Research Paper", "CIPD", "Project Assistance", "Career Services"]
-const ACADEMIC_LEVELS = ["High School", "Undergraduate", "Masters", "PhD"]
-const CITATION_STYLES = ["APA", "IEEE", "Harvard", "MLA", "Chicago"]
-
 const TECH_SERVICES = ["Business Website", "E-commerce Website", "Mobile App", "CRM System", "Dashboard", "API Integration", "Automation"]
 const SEO_SERVICES = ["On-page SEO", "Off-page SEO", "Technical SEO", "Local SEO", "Content SEO"]
+const PLATFORMS = [
+  { value: "instagram", label: "Instagram" },
+  { value: "facebook", label: "Facebook" },
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "website", label: "Website" },
+  { value: "email", label: "Email" },
+]
 
 const initialForm = {
   full_name: "", email: "", phone: "", country: "", company: "",
-  department: "", status: "active", tag: "", notes: "",
-  assigned_to: "",
+  department: "", status: "active", tag: "", notes: "", assigned_to: "",
 }
 
-const initialAcademic = {
-  service_type: "", academic_level: "", subject: "", topic: "",
-  deadline: "", pages: "", word_count: "", citation_style: "",
-  reference_count: "", special_instructions: "",
+const initialSales = {
+  questionnaire: "", platform: "", platform_link: "",
 }
 
 const initialTech = {
@@ -93,7 +94,7 @@ export default function ClientForm() {
   const navigate = useNavigate()
   const { add } = useClientStore()
   const [form, setForm] = useState(initialForm)
-  const [academic, setAcademic] = useState(initialAcademic)
+  const [sales, setSales] = useState(initialSales)
   const [tech, setTech] = useState(initialTech)
   const [seo, setSEO] = useState(initialSEO)
   const [loading, setLoading] = useState(false)
@@ -111,7 +112,7 @@ export default function ClientForm() {
     setError("")
 
     const payload = { ...form }
-    if (form.department === "academic") payload.academic_detail = academic
+    if (form.department === "sales") payload.sales_detail = sales
     if (form.department === "tech") payload.tech_detail = tech
     if (form.department === "seo") payload.seo_detail = seo
 
@@ -148,14 +149,14 @@ export default function ClientForm() {
             <Field label="Full Name">
               <Input value={form.full_name} onChange={f(setForm)("full_name")} placeholder="John Doe" />
             </Field>
+            <Field label="Country">
+              <Input value={form.country} onChange={f(setForm)("country")} placeholder="United Kingdom" />
+            </Field>
             <Field label="Email">
               <Input value={form.email} onChange={f(setForm)("email")} placeholder="john@gmail.com" type="email" />
             </Field>
             <Field label="Phone">
               <Input value={form.phone} onChange={f(setForm)("phone")} placeholder="+1 234 567 890" />
-            </Field>
-            <Field label="Country">
-              <Input value={form.country} onChange={f(setForm)("country")} placeholder="United Kingdom" />
             </Field>
             <Field label="Company">
               <Input value={form.company} onChange={f(setForm)("company")} placeholder="Company name (optional)" />
@@ -163,7 +164,7 @@ export default function ClientForm() {
           </div>
         </div>
 
-        {/* Section 2 — Department */}
+        {/* Section 2 — Department & Status */}
         <div className="bg-white rounded-2xl p-5">
           <SectionTitle number="2" title="Department & Status" />
           <div className="grid grid-cols-3 gap-4">
@@ -194,46 +195,41 @@ export default function ClientForm() {
           </div>
         </div>
 
-        {/* Section 3 — Department Specific */}
-        {form.department === "academic" && (
+        {/* Section 3 — Sales Details */}
+        {form.department === "sales" && (
           <div className="bg-white rounded-2xl p-5">
-            <SectionTitle number="3" title="Academic Details" />
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Service Type">
-                <Select value={academic.service_type} onChange={f(setAcademic)("service_type")} options={ACADEMIC_SERVICES} placeholder="Select service" />
+            <SectionTitle number="3" title="Sales Details" />
+            <div className="space-y-4">
+              <Field label="Platform">
+                <Select
+                  value={sales.platform}
+                  onChange={f(setSales)("platform")}
+                  options={PLATFORMS}
+                  placeholder="Select platform"
+                />
               </Field>
-              <Field label="Academic Level">
-                <Select value={academic.academic_level} onChange={f(setAcademic)("academic_level")} options={ACADEMIC_LEVELS} placeholder="Select level" />
+              <Field label="Platform Link">
+                <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5">
+                  {sales.platform && (
+                    <Icon
+                      icon={`mdi:${sales.platform}`}
+                      className="w-4 h-4 text-gray-400 shrink-0"
+                    />
+                  )}
+                  <input
+                    value={sales.platform_link}
+                    onChange={f(setSales)("platform_link")}
+                    placeholder="https://instagram.com/username"
+                    className="flex-1 text-sm text-gray-800 placeholder-gray-300 outline-none bg-transparent"
+                  />
+                </div>
               </Field>
-              <Field label="Subject">
-                <Input value={academic.subject} onChange={f(setAcademic)("subject")} placeholder="e.g. Business Management" />
-              </Field>
-              <Field label="Topic">
-                <Input value={academic.topic} onChange={f(setAcademic)("topic")} placeholder="e.g. Supply Chain Analysis" />
-              </Field>
-              <Field label="Deadline">
-                <Input value={academic.deadline} onChange={f(setAcademic)("deadline")} type="date" />
-              </Field>
-              <Field label="Pages">
-                <Input value={academic.pages} onChange={f(setAcademic)("pages")} placeholder="e.g. 10" />
-              </Field>
-              <Field label="Word Count">
-                <Input value={academic.word_count} onChange={f(setAcademic)("word_count")} placeholder="e.g. 2500" />
-              </Field>
-              <Field label="Citation Style">
-                <Select value={academic.citation_style} onChange={f(setAcademic)("citation_style")} options={CITATION_STYLES} placeholder="Select style" />
-              </Field>
-              <Field label="Reference Count">
-                <Input value={academic.reference_count} onChange={f(setAcademic)("reference_count")} placeholder="e.g. 15" />
-              </Field>
-            </div>
-            <div className="mt-4">
-              <Field label="Special Instructions">
+              <Field label="Questionnaire / Requirements">
                 <textarea
-                  value={academic.special_instructions}
-                  onChange={f(setAcademic)("special_instructions")}
-                  rows={3}
-                  placeholder="Any specific requirements..."
+                  value={sales.questionnaire}
+                  onChange={f(setSales)("questionnaire")}
+                  rows={5}
+                  placeholder="Client requirements, questionnaire answers, service needs..."
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-300 outline-none focus:border-primary transition-colors resize-none"
                 />
               </Field>
@@ -241,6 +237,7 @@ export default function ClientForm() {
           </div>
         )}
 
+        {/* Section 3 — Tech Details */}
         {form.department === "tech" && (
           <div className="bg-white rounded-2xl p-5">
             <SectionTitle number="3" title="Tech Project Details" />
@@ -272,6 +269,7 @@ export default function ClientForm() {
           </div>
         )}
 
+        {/* Section 3 — SEO Details */}
         {form.department === "seo" && (
           <div className="bg-white rounded-2xl p-5">
             <SectionTitle number="3" title="SEO Details" />
