@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { Plus, Search, ChevronDown } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { Icon } from "@iconify/react"
-import leadsApi from "../../api/leads"
+import useLeadStore from "../../store/leadStore"
 
 const STATUS_OPTIONS = ["new", "contacted", "interested", "follow_up", "converted", "rejected"]
 const DEPARTMENTS = ["academic", "tech", "seo"]
@@ -29,39 +29,19 @@ const sourceIcons = {
 
 export default function LeadList() {
   const navigate = useNavigate()
-  const [list, setList] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
-  const [filters, setFilters] = useState({ status: "", department: "", source: "" })
+  const { leads, loading, filters, setFilters, fetch } = useLeadStore()
 
-  const fetchLeads = () => {
-    setLoading(true)
-    const params = {}
-    if (search) params.search = search
-    if (filters.status) params.status = filters.status
-    if (filters.department) params.department = filters.department
-    if (filters.source) params.source = filters.source
-    leadsApi.list(params)
-      .then(({ data }) => setList(data))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => { fetchLeads() }, [filters])
-
-  const handleSearch = (e) => {
-    if (e.key === "Enter") fetchLeads()
-  }
+  useEffect(() => { fetch() }, [filters])
 
   const stats = {
-    total: list.length,
-    new: list.filter((l) => l.status === "new").length,
-    interested: list.filter((l) => l.status === "interested").length,
-    converted: list.filter((l) => l.status === "converted").length,
+    total: leads.length,
+    new: leads.filter((l) => l.status === "new").length,
+    interested: leads.filter((l) => l.status === "interested").length,
+    converted: leads.filter((l) => l.status === "converted").length,
   }
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-xs text-gray-400 mb-0.5">Management</p>
@@ -101,14 +81,13 @@ export default function LeadList() {
         <div className="flex-1 min-w-48 flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2">
           <Search className="w-4 h-4 text-gray-300 shrink-0" />
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={handleSearch}
+            value={filters.search}
+            onChange={(e) => setFilters({ search: e.target.value })}
+            onKeyDown={(e) => e.key === "Enter" && fetch()}
             placeholder="Search by name or email..."
             className="flex-1 text-sm text-gray-700 placeholder-gray-300 outline-none"
           />
         </div>
-
         {[
           { key: "status", options: STATUS_OPTIONS, placeholder: "All Status" },
           { key: "department", options: DEPARTMENTS, placeholder: "All Departments" },
@@ -117,7 +96,7 @@ export default function LeadList() {
           <div key={key} className="relative">
             <select
               value={filters[key]}
-              onChange={(e) => setFilters((p) => ({ ...p, [key]: e.target.value }))}
+              onChange={(e) => setFilters({ [key]: e.target.value })}
               className="appearance-none border border-gray-200 rounded-xl px-4 py-2 pr-8 text-sm text-gray-600 outline-none focus:border-primary bg-white capitalize"
             >
               <option value="">{placeholder}</option>
@@ -136,7 +115,7 @@ export default function LeadList() {
           <div className="flex items-center justify-center h-48">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : list.length === 0 ? (
+        ) : leads.length === 0 ? (
           <div className="text-center py-16">
             <Icon icon="lucide:users" className="w-10 h-10 text-gray-200 mx-auto mb-3" />
             <p className="text-sm font-medium text-gray-500">No leads found</p>
@@ -156,7 +135,7 @@ export default function LeadList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {list.map((lead) => (
+              {leads.map((lead) => (
                 <tr key={lead.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-5 py-3.5">
                     <p className="text-sm font-medium text-gray-800">{lead.full_name}</p>
