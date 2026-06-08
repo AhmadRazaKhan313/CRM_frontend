@@ -353,14 +353,14 @@ export default function ClientDetail() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-400">{f.uploaded_by_name}</span>
-<a
-  href={f.file}
-  target="_blank"
-  rel="noreferrer"
-  className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-gray-200 text-gray-400 transition-colors"
->
-  <Icon icon="lucide:download" className="w-3.5 h-3.5" />
-</a>
+                      <a
+                        href={f.file}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-gray-200 text-gray-400 transition-colors"
+                      >
+                        <Icon icon="lucide:download" className="w-3.5 h-3.5" />
+                      </a>
                     </div>
                   </div>
                 ))}

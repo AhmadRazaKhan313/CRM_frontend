@@ -84,7 +84,7 @@ export default function TaskForm() {
             {[
               { label: "Priority", field: "priority", options: ["low", "medium", "high", "urgent"] },
               { label: "Status", field: "status", options: ["pending", "in_progress", "completed", "delayed"] },
-              { label: "Department", field: "department", options: ["academic", "tech", "seo"] },
+              { label: "Department", field: "department", options: ["sales", "tech", "seo"] },
             ].map(({ label, field, options }) => (
               <div key={field}>
                 <label className="block text-xs text-gray-400 mb-1.5">{label}</label>

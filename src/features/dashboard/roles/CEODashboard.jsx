@@ -23,7 +23,7 @@ const stats = [
 ]
 
 const deptStats = [
-  { name: "Academic", leads: 1240, converted: 98, revenue: "$48,200" },
+  { name: "Sales", leads: 1240, converted: 98, revenue: "$48,200" },
   { name: "Tech", leads: 860, converted: 72, revenue: "$62,400" },
   { name: "SEO", leads: 1720, converted: 114, revenue: "$31,400" },
 ]
