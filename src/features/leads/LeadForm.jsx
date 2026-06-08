@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react"
 import leadsApi from "../../api/leads"
 
 const SOURCES = ["instagram", "facebook", "linkedin", "whatsapp", "website", "email", "other"]
-const DEPARTMENTS = ["academic", "tech", "seo"]
+const DEPARTMENTS = ["sales", "tech", "seo"]
 const STATUSES = ["new", "contacted", "interested", "follow_up", "converted", "rejected"]
 
 const initialForm = {

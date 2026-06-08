@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react"
 import useLeadStore from "../../store/leadStore"
 
 const STATUS_OPTIONS = ["new", "contacted", "interested", "follow_up", "converted", "rejected"]
-const DEPARTMENTS = ["academic", "tech", "seo"]
+const DEPARTMENTS = ["sales", "tech", "seo"]
 const SOURCES = ["instagram", "facebook", "linkedin", "whatsapp", "website", "email", "other"]
 
 const statusConfig = {
