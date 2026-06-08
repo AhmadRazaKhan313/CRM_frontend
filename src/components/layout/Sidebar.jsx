@@ -80,6 +80,7 @@ export default function Sidebar() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const clearAuth = useAuthStore((s) => s.clearAuth)
+  const isSuperAdmin = user?.is_super_admin
 
   const role = user?.is_super_admin ? "ceo" : user?.role
   const items = navConfig[role] || navConfig.lead_employee
@@ -127,6 +128,21 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
+      {isSuperAdmin && (
+  <NavLink
+    to="/superadmin"
+    title="Super Admin"
+    className={({ isActive }) =>
+      `relative w-10 h-10 rounded-xl flex items-center justify-center transition-colors group
+      ${isActive ? "bg-red-50 text-red-500" : "text-gray-400 hover:bg-red-50 hover:text-red-500"}`
+    }
+  >
+    <Icon icon="lucide:shield-alert" className="w-[18px] h-[18px]" />
+    <span className="absolute left-12 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+      Super Admin
+    </span>
+  </NavLink>
+)}
 
       {/* Bottom — Avatar + Logout */}
       <div className="mt-auto flex flex-col items-center gap-2 shrink-0">
