@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react"
 import { Icon } from "@iconify/react"
 import clientsApi from "../../api/clients"
 import useClientStore from "../../store/clientStore"
+import COUNTRIES from "../../utils/countries"
 
 const DEPARTMENTS = ["sales", "tech", "seo"]
 const TAGS = ["vip", "returning", "urgent", "high_budget"]
@@ -97,6 +98,8 @@ export default function ClientForm() {
   const [sales, setSales] = useState(initialSales)
   const [tech, setTech] = useState(initialTech)
   const [seo, setSEO] = useState(initialSEO)
+  const [countrySearch, setCountrySearch] = useState("")
+const [showCountries, setShowCountries] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -149,9 +152,51 @@ export default function ClientForm() {
             <Field label="Full Name">
               <Input value={form.full_name} onChange={f(setForm)("full_name")} placeholder="John Doe" />
             </Field>
-            <Field label="Country">
-              <Input value={form.country} onChange={f(setForm)("country")} placeholder="United Kingdom" />
-            </Field>
+           {/* Country Dropdown */}
+<div className="relative">
+  <label className="block text-xs text-gray-400 mb-1.5">Country</label>
+  <div
+    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 cursor-pointer flex items-center justify-between"
+    onClick={() => setShowCountries(!showCountries)}
+  >
+    <span className={form.country ? "text-gray-800" : "text-gray-300"}>
+      {form.country || "Select country"}
+    </span>
+    <ChevronDown className="w-4 h-4 text-gray-400" />
+  </div>
+  {showCountries && (
+    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+      <div className="p-2 border-b border-gray-100">
+        <input
+          value={countrySearch}
+          onChange={(e) => setCountrySearch(e.target.value)}
+          placeholder="Search country..."
+          className="w-full px-3 py-1.5 text-sm text-gray-700 placeholder-gray-300 outline-none border border-gray-200 rounded-lg"
+          autoFocus
+        />
+      </div>
+      <div className="max-h-48 overflow-y-auto">
+        {COUNTRIES.filter((c) =>
+          c.toLowerCase().includes(countrySearch.toLowerCase())
+        ).map((c) => (
+          <div
+            key={c}
+            onClick={() => {
+              setForm((p) => ({ ...p, country: c }))
+              setShowCountries(false)
+              setCountrySearch("")
+            }}
+            className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-50 transition-colors ${
+              form.country === c ? "text-primary font-medium bg-primary/5" : "text-gray-700"
+            }`}
+          >
+            {c}
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
             <Field label="Email">
               <Input value={form.email} onChange={f(setForm)("email")} placeholder="john@gmail.com" type="email" />
             </Field>
