@@ -2,8 +2,11 @@ import { NavLink, useNavigate } from "react-router-dom"
 import { Icon } from "@iconify/react"
 import { LogOut } from "lucide-react"
 import useAuthStore from "../../store/authStore"
+import useFeatureStore from "../../store/featureStore"
 import { getDashboardRoute } from "../../utils/roleUtils"
 
+// ─── Nav config ───────────────────────────────────────────────
+// feature: "hrms" → sirf tab dikhta hai jab flag ON ho
 const navConfig = {
   ceo: [
     { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
@@ -13,8 +16,14 @@ const navConfig = {
     { icon: "lucide:handshake", path: "/clients", label: "Clients" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:dollar-sign", path: "/finance", label: "Finance" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics" },
+    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
+    // HRMS group — feature flag ke peeche
+    { icon: "lucide:badge-check", path: "/hrms", label: "HRMS", feature: "hrms" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:timer", path: "/hrms/shifts", label: "Shifts", feature: "hrms" },
+    { icon: "lucide:dollar-sign", path: "/hrms/salary", label: "Salary", feature: "hrms" },
+    { icon: "lucide:receipt", path: "/hrms/payroll", label: "Payroll", feature: "hrms" },
     { icon: "lucide:shield", path: "/roles", label: "Roles" },
     { icon: "lucide:settings", path: "/settings", label: "Settings" },
   ],
@@ -26,8 +35,13 @@ const navConfig = {
     { icon: "lucide:handshake", path: "/clients", label: "Clients" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics" },
-    { icon: "lucide:settings", path: "/settings", label: "Settings" },
+    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
+    { icon: "lucide:badge-check", path: "/hrms", label: "HRMS", feature: "hrms" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:timer", path: "/hrms/shifts", label: "Shifts", feature: "hrms" },
+    { icon: "lucide:dollar-sign", path: "/hrms/salary", label: "Salary", feature: "hrms" },
+    { icon: "lucide:receipt", path: "/hrms/payroll", label: "Payroll", feature: "hrms" },
   ],
   dept_head: [
     { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
@@ -36,7 +50,11 @@ const navConfig = {
     { icon: "lucide:handshake", path: "/clients", label: "Clients" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics" },
+    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
+    { icon: "lucide:badge-check", path: "/hrms", label: "HRMS", feature: "hrms" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:timer", path: "/hrms/shifts", label: "Shifts", feature: "hrms" },
   ],
   sales_director: [
     { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
@@ -44,7 +62,9 @@ const navConfig = {
     { icon: "lucide:handshake", path: "/clients", label: "Clients" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics" },
+    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
   ],
   lead_manager: [
     { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
@@ -52,6 +72,8 @@ const navConfig = {
     { icon: "lucide:user-plus", path: "/leads", label: "Leads" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
   ],
   sales_manager: [
     { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
@@ -60,12 +82,17 @@ const navConfig = {
     { icon: "lucide:handshake", path: "/clients", label: "Clients" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
   ],
   lead_employee: [
     { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
     { icon: "lucide:user-plus", path: "/leads", label: "My Leads" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:receipt", path: "/hrms/payroll", label: "My Payslips", feature: "hrms" },
   ],
   sales_employee: [
     { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
@@ -73,6 +100,9 @@ const navConfig = {
     { icon: "lucide:handshake", path: "/clients", label: "Clients" },
     { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
     { icon: "lucide:file-text", path: "/reports", label: "Reports" },
+    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
+    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:receipt", path: "/hrms/payroll", label: "My Payslips", feature: "hrms" },
   ],
 }
 
@@ -80,9 +110,17 @@ export default function Sidebar() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const clearAuth = useAuthStore((s) => s.clearAuth)
+  const hasFeature = useFeatureStore((s) => s.hasFeature)
 
   const role = user?.is_super_admin ? "ceo" : user?.role
-  const items = navConfig[role] || navConfig.lead_employee
+  const allItems = navConfig[role] || navConfig.lead_employee
+
+  // Feature-gated links filter karo
+  const items = allItems.filter((item) => {
+    if (!item.feature) return true
+    if (user?.is_super_admin) return true
+    return hasFeature(item.feature)
+  })
 
   const handleLogout = () => {
     clearAuth()
@@ -94,14 +132,14 @@ export default function Sidebar() {
       {/* Logo */}
       <div
         onClick={() => navigate(getDashboardRoute(user?.role))}
-        className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mb-6 shrink-0 cursor-pointer hover:bg-primary-dark transition-colors"
+        className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mb-6 shrink-0 cursor-pointer hover:bg-primary/90 transition-colors"
       >
         <span className="text-white font-bold text-sm">C</span>
       </div>
 
       {/* Nav */}
       <nav className="flex flex-col items-center gap-1 flex-1 w-full px-2 overflow-y-auto scrollbar-none">
-        {items.map(({ icon, path, label, badge }) => (
+        {items.map(({ icon, path, label }) => (
           <NavLink
             key={path}
             to={path}
@@ -115,11 +153,6 @@ export default function Sidebar() {
             }
           >
             <Icon icon={icon} className="w-[18px] h-[18px]" />
-            {badge && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-semibold flex items-center justify-center">
-                {badge}
-              </span>
-            )}
             {/* Tooltip */}
             <span className="absolute left-12 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {label}
@@ -128,7 +161,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Bottom — Avatar + Logout */}
+      {/* Bottom */}
       <div className="mt-auto flex flex-col items-center gap-2 shrink-0">
         <button
           onClick={handleLogout}
@@ -146,7 +179,7 @@ export default function Sidebar() {
           title={user?.full_name}
         >
           {user?.avatar ? (
-            <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" />
+            <img src={user.avatar} className="w-8 h-8 rounded-full object-cover" alt="" />
           ) : (
             <span className="text-xs font-semibold text-primary">
               {user?.full_name?.[0]?.toUpperCase()}

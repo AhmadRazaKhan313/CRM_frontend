@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import useFeatureStore from "./featureStore"
 
 const useAuthStore = create(
   persist(
@@ -8,15 +9,27 @@ const useAuthStore = create(
       access: null,
       refresh: null,
 
-      setAuth: (user, access, refresh) =>
-        set({ user, access, refresh }),
+      setAuth: (user, access, refresh) => {
+        const features = user?.tenant?.features ?? {}
+        useFeatureStore.getState().setFlags(features)
+        set({ user, access, refresh })
+      },
 
-      clearAuth: () =>
-        set({ user: null, access: null, refresh: null }),
+      clearAuth: () => {
+        useFeatureStore.getState().clearFlags()
+        set({ user: null, access: null, refresh: null })
+      },
 
       updateUser: (user) => set({ user }),
     }),
-    { name: "auth" }
+    {
+      name: "auth",
+      onRehydrateStorage: () => (state) => {
+        if (state?.user?.tenant?.features) {
+          useFeatureStore.getState().setFlags(state.user.tenant.features)
+        }
+      },
+    }
   )
 )
 
