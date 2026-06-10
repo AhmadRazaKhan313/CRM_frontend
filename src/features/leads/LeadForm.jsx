@@ -6,6 +6,7 @@ import leadsApi from "../../api/leads"
 import employeesApi from "../../api/employees"
 import useLeadStore from "../../store/leadStore"
 import COUNTRIES from "../../utils/countries"
+import useAuthStore from "../../store/authStore"
 
 const SOURCES = ["instagram", "facebook", "linkedin", "whatsapp", "website", "email", "other"]
 const DEPARTMENTS = ["sales", "tech", "seo"]
@@ -46,14 +47,19 @@ function SectionTitle({ number, title }) {
 }
 
 export default function LeadForm() {
+ const user = useAuthStore((s) => s.user)
   const navigate = useNavigate()
   const { add } = useLeadStore()
-  const [form, setForm] = useState(initialForm)
+ const [form, setForm] = useState({
+  ...initialForm,
+  department: user?.department || "",
+})
   const [employees, setEmployees] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [countrySearch, setCountrySearch] = useState("")
   const [showCountries, setShowCountries] = useState(false)
+
 
   useEffect(() => {
     employeesApi.list().then(({ data }) => setEmployees(data))

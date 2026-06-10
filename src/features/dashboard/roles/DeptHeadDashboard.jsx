@@ -1,15 +1,21 @@
-import { Icon } from "@iconify/react"
+import { useEffect, useState } from "react"
+import analyticsApi from "../../../api/analytics"
 import useAuthStore from "../../../store/authStore"
-
-const stats = [
-  { label: "Department Leads", value: "186", icon: "lucide:users", color: "text-blue-600", bg: "bg-blue-50" },
-  { label: "Conversions", value: "42", icon: "lucide:target", color: "text-green-600", bg: "bg-green-50" },
-  { label: "Active Employees", value: "14", icon: "lucide:user-check", color: "text-primary", bg: "bg-primary/10" },
-  { label: "Revenue", value: "$28,400", icon: "lucide:dollar-sign", color: "text-orange-600", bg: "bg-orange-50" },
-]
 
 export default function DeptHeadDashboard() {
   const user = useAuthStore((s) => s.user)
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+    analyticsApi.overview().then(({ data }) => setData(data))
+  }, [])
+
+  const stats = [
+    { label: "Department Leads", value: data?.leads?.total ?? 0, icon: "lucide:users", color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Conversions", value: data?.leads?.converted ?? 0, icon: "lucide:target", color: "text-green-600", bg: "bg-green-50" },
+    { label: "Active Employees", value: data?.employees?.total ?? 0, icon: "lucide:user-check", color: "text-primary", bg: "bg-primary/10" },
+    { label: "Active Tasks", value: data?.tasks?.in_progress ?? 0, icon: "lucide:clipboard-list", color: "text-orange-600", bg: "bg-orange-50" },
+  ]
 
   return (
     <div className="space-y-5">
