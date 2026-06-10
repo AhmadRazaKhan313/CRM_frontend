@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom"
 import { ChevronDown } from "lucide-react"
 import clientsApi from "../../api/clients"
 import useClientStore from "../../store/clientStore"
+import useAuthStore from "../../store/authStore"
+import COUNTRIES from "../../utils/countries"
 
-const DEPARTMENTS = ["academic", "tech", "seo"]
+const DEPARTMENTS = ["sales", "tech", "seo"]
 const TAGS = ["vip", "returning", "urgent", "high_budget"]
 
-const ACADEMIC_SERVICES = ["Assignment Help", "Thesis Support", "Dissertation", "Coursework", "Research Paper", "CIPD", "Project Assistance", "Career Services"]
+const SALES_SERVICES = ["Assignment Help", "Thesis Support", "Dissertation", "Coursework", "Research Paper", "CIPD", "Project Assistance", "Career Services"]
 const ACADEMIC_LEVELS = ["High School", "Undergraduate", "Masters", "PhD"]
 const CITATION_STYLES = ["APA", "IEEE", "Harvard", "MLA", "Chicago"]
 
@@ -20,7 +22,7 @@ const initialForm = {
   assigned_to: "",
 }
 
-const initialAcademic = {
+const initialSales = {
   service_type: "", academic_level: "", subject: "", topic: "",
   deadline: "", pages: "", word_count: "", citation_style: "",
   reference_count: "", special_instructions: "",
@@ -92,26 +94,28 @@ function SectionTitle({ number, title }) {
 export default function ClientForm() {
   const navigate = useNavigate()
   const { add } = useClientStore()
-  const [form, setForm] = useState(initialForm)
-  const [academic, setAcademic] = useState(initialAcademic)
+  const user = useAuthStore((s) => s.user)
+
+  const [form, setForm] = useState({ ...initialForm, department: user?.department || "" })
+  const [sales, setSales] = useState(initialSales)
   const [tech, setTech] = useState(initialTech)
   const [seo, setSEO] = useState(initialSEO)
+  const [countrySearch, setCountrySearch] = useState("")
+  const [showCountries, setShowCountries] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
 
   const f = (setter) => (field) => (e) => setter((p) => ({ ...p, [field]: e.target.value }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.department) {
-      setError("Department is required.")
-      return
-    }
+    if (!form.department) { setError("Department is required."); return }
     setLoading(true)
     setError("")
 
     const payload = { ...form }
-    if (form.department === "academic") payload.academic_detail = academic
+    if (form.department === "sales") payload.sales_detail = sales
     if (form.department === "tech") payload.tech_detail = tech
     if (form.department === "seo") payload.seo_detail = seo
 
@@ -154,9 +158,51 @@ export default function ClientForm() {
             <Field label="Phone">
               <Input value={form.phone} onChange={f(setForm)("phone")} placeholder="+1 234 567 890" />
             </Field>
-            <Field label="Country">
-              <Input value={form.country} onChange={f(setForm)("country")} placeholder="United Kingdom" />
-            </Field>
+            {/* Country Dropdown */}
+<div className="relative">
+  <label className="block text-xs text-gray-400 mb-1.5">Country</label>
+  <div
+    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 cursor-pointer flex items-center justify-between"
+    onClick={() => setShowCountries(!showCountries)}
+  >
+    <span className={form.country ? "text-gray-800" : "text-gray-300"}>
+      {form.country || "Select country"}
+    </span>
+    <ChevronDown className="w-4 h-4 text-gray-400" />
+  </div>
+  {showCountries && (
+    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+      <div className="p-2 border-b border-gray-100">
+        <input
+          value={countrySearch}
+          onChange={(e) => setCountrySearch(e.target.value)}
+          placeholder="Search country..."
+          className="w-full px-3 py-1.5 text-sm text-gray-700 placeholder-gray-300 outline-none border border-gray-200 rounded-lg"
+          autoFocus
+        />
+      </div>
+      <div className="max-h-48 overflow-y-auto">
+        {COUNTRIES.filter((c) =>
+          c.toLowerCase().includes(countrySearch.toLowerCase())
+        ).map((c) => (
+          <div
+            key={c}
+            onClick={() => {
+              setForm((p) => ({ ...p, country: c }))
+              setShowCountries(false)
+              setCountrySearch("")
+            }}
+            className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-50 transition-colors ${
+              form.country === c ? "text-primary font-medium bg-primary/5" : "text-gray-700"
+            }`}
+          >
+            {c}
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
             <Field label="Company">
               <Input value={form.company} onChange={f(setForm)("company")} placeholder="Company name (optional)" />
             </Field>
@@ -194,44 +240,44 @@ export default function ClientForm() {
           </div>
         </div>
 
-        {/* Section 3 — Department Specific */}
-        {form.department === "academic" && (
+        {/* Section 3 — Sales Details */}
+        {form.department === "sales" && (
           <div className="bg-white rounded-2xl p-5">
-            <SectionTitle number="3" title="Academic Details" />
+            <SectionTitle number="3" title="Sales Details" />
             <div className="grid grid-cols-2 gap-4">
               <Field label="Service Type">
-                <Select value={academic.service_type} onChange={f(setAcademic)("service_type")} options={ACADEMIC_SERVICES} placeholder="Select service" />
+                <Select value={sales.service_type} onChange={f(setSales)("service_type")} options={SALES_SERVICES} placeholder="Select service" />
               </Field>
               <Field label="Academic Level">
-                <Select value={academic.academic_level} onChange={f(setAcademic)("academic_level")} options={ACADEMIC_LEVELS} placeholder="Select level" />
+                <Select value={sales.academic_level} onChange={f(setSales)("academic_level")} options={ACADEMIC_LEVELS} placeholder="Select level" />
               </Field>
               <Field label="Subject">
-                <Input value={academic.subject} onChange={f(setAcademic)("subject")} placeholder="e.g. Business Management" />
+                <Input value={sales.subject} onChange={f(setSales)("subject")} placeholder="e.g. Business Management" />
               </Field>
               <Field label="Topic">
-                <Input value={academic.topic} onChange={f(setAcademic)("topic")} placeholder="e.g. Supply Chain Analysis" />
+                <Input value={sales.topic} onChange={f(setSales)("topic")} placeholder="e.g. Supply Chain Analysis" />
               </Field>
               <Field label="Deadline">
-                <Input value={academic.deadline} onChange={f(setAcademic)("deadline")} type="date" />
+                <Input value={sales.deadline} onChange={f(setSales)("deadline")} type="date" />
               </Field>
               <Field label="Pages">
-                <Input value={academic.pages} onChange={f(setAcademic)("pages")} placeholder="e.g. 10" />
+                <Input value={sales.pages} onChange={f(setSales)("pages")} placeholder="e.g. 10" />
               </Field>
               <Field label="Word Count">
-                <Input value={academic.word_count} onChange={f(setAcademic)("word_count")} placeholder="e.g. 2500" />
+                <Input value={sales.word_count} onChange={f(setSales)("word_count")} placeholder="e.g. 2500" />
               </Field>
               <Field label="Citation Style">
-                <Select value={academic.citation_style} onChange={f(setAcademic)("citation_style")} options={CITATION_STYLES} placeholder="Select style" />
+                <Select value={sales.citation_style} onChange={f(setSales)("citation_style")} options={CITATION_STYLES} placeholder="Select style" />
               </Field>
               <Field label="Reference Count">
-                <Input value={academic.reference_count} onChange={f(setAcademic)("reference_count")} placeholder="e.g. 15" />
+                <Input value={sales.reference_count} onChange={f(setSales)("reference_count")} placeholder="e.g. 15" />
               </Field>
             </div>
             <div className="mt-4">
               <Field label="Special Instructions">
                 <textarea
-                  value={academic.special_instructions}
-                  onChange={f(setAcademic)("special_instructions")}
+                  value={sales.special_instructions}
+                  onChange={f(setSales)("special_instructions")}
                   rows={3}
                   placeholder="Any specific requirements..."
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-300 outline-none focus:border-primary transition-colors resize-none"
@@ -241,6 +287,7 @@ export default function ClientForm() {
           </div>
         )}
 
+        {/* Section 3 — Tech Details */}
         {form.department === "tech" && (
           <div className="bg-white rounded-2xl p-5">
             <SectionTitle number="3" title="Tech Project Details" />
@@ -272,6 +319,7 @@ export default function ClientForm() {
           </div>
         )}
 
+        {/* Section 3 — SEO Details */}
         {form.department === "seo" && (
           <div className="bg-white rounded-2xl p-5">
             <SectionTitle number="3" title="SEO Details" />

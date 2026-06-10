@@ -1,10 +1,12 @@
-import { TrendingUp, TrendingDown, Users, Target, DollarSign, BarChart2 } from "lucide-react"
+import { TrendingUp, TrendingDown } from "lucide-react"
 import { Icon } from "@iconify/react"
 import {
   AreaChart, Area, XAxis, YAxis,
   Tooltip, ResponsiveContainer
 } from "recharts"
 import useAuthStore from "../../../store/authStore"
+import { useEffect, useState } from "react"
+import analyticsApi from "../../../api/analytics"
 
 const salesData = [
   { month: "Jan", value: 30000 },
@@ -22,12 +24,6 @@ const stats = [
   { label: "Active Employees", value: "48", trend: "up", change: "+2", icon: "lucide:user-check", color: "text-primary", bg: "bg-primary/10" },
 ]
 
-const deptStats = [
-  { name: "Sales", leads: 1240, converted: 98, revenue: "$48,200" },
-  { name: "Tech", leads: 860, converted: 72, revenue: "$62,400" },
-  { name: "SEO", leads: 1720, converted: 114, revenue: "$31,400" },
-]
-
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
@@ -39,7 +35,20 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function CEODashboard() {
+  const [analyticsData, setAnalyticsData] = useState(null)
   const user = useAuthStore((s) => s.user)
+
+  useEffect(() => {
+    analyticsApi.overview().then(({ data }) => setAnalyticsData(data)).catch(() => {})
+  }, [])
+
+  // analyticsData ke andar define kiya — ab error nahi aayega
+  const deptStats = analyticsData?.lead_by_dept?.map((d) => ({
+    name: d.department?.charAt(0).toUpperCase() + d.department?.slice(1),
+    leads: d.count,
+    converted: 0,
+    revenue: "$0",
+  })) || []
 
   return (
     <div className="space-y-5">
@@ -103,25 +112,31 @@ export default function CEODashboard() {
         {/* Department Summary */}
         <div className="bg-white rounded-2xl p-5">
           <p className="text-sm font-semibold text-gray-800 mb-4">Department Summary</p>
-          <div className="space-y-4">
-            {deptStats.map((d, i) => (
-              <div key={i}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-medium text-gray-700">{d.name}</span>
-                  <span className="text-xs font-semibold text-gray-900">{d.revenue}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full"
-                      style={{ width: `${(d.converted / d.leads) * 100}%` }}
-                    />
+          {deptStats.length === 0 ? (
+            <div className="flex items-center justify-center h-32">
+              <p className="text-xs text-gray-400">No department data yet</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {deptStats.map((d, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-medium text-gray-700">{d.name}</span>
+                    <span className="text-xs font-semibold text-gray-900">{d.revenue}</span>
                   </div>
-                  <span className="text-xs text-gray-400">{d.leads} leads</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full"
+                        style={{ width: d.leads > 0 ? `${(d.converted / d.leads) * 100}%` : "0%" }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-400">{d.leads} leads</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
