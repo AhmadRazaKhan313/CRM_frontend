@@ -175,14 +175,14 @@ export default function ClientDetail() {
           </div>
 
           {/* Department Details */}
-          {(client.academic_detail || client.tech_detail || client.seo_detail) && (
+          {(client.sales_detail || client.tech_detail || client.seo_detail) && (
             <div className="bg-white rounded-2xl p-5">
               <p className="text-sm font-semibold text-gray-800 mb-4 capitalize">
                 {client.department} Project Details
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {Object.entries(
-                  client.academic_detail || client.tech_detail || client.seo_detail || {}
+                  client.sales_detail || client.tech_detail || client.seo_detail || {}
                 ).map(([key, value]) => value ? (
                   <div key={key}>
                     <p className="text-xs text-gray-400 capitalize">{key.replace(/_/g, " ")}</p>
