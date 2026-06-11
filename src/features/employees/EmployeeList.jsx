@@ -186,6 +186,12 @@ export default function EmployeeList() {
                         <Icon icon="lucide:pencil" className="w-3.5 h-3.5" />
                       </button>
                       <button
+                        onClick={() => navigate(`/employees/${emp.id}`)}
+                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+  <Icon icon="lucide:eye" className="w-3.5 h-3.5" />
+</button>
+                      <button
                         onClick={() => handleDeactivate(emp.id)}
                         className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
                       >
