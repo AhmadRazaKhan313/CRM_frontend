@@ -5,104 +5,102 @@ import useAuthStore from "../../store/authStore"
 import useFeatureStore from "../../store/featureStore"
 import { getDashboardRoute } from "../../utils/roleUtils"
 
-// ─── Nav config ───────────────────────────────────────────────
-// feature: "hrms" → sirf tab dikhta hai jab flag ON ho
+// feature key → TenantFeature field name mapping
+// agar feature set nahi to hamesha dikhega
 const navConfig = {
   ceo: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:building-2", path: "/departments", label: "Departments" },
-    { icon: "lucide:users", path: "/employees", label: "Employees" },
-    { icon: "lucide:user-plus", path: "/leads", label: "Leads" },
-    { icon: "lucide:handshake", path: "/clients", label: "Clients" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
-    // HRMS group — feature flag ke peeche
-    { icon: "lucide:badge-check", path: "/hrms", label: "HRMS", feature: "hrms" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
-    { icon: "lucide:timer", path: "/hrms/shifts", label: "Shifts", feature: "hrms" },
-    { icon: "lucide:dollar-sign", path: "/hrms/salary", label: "Salary", feature: "hrms" },
-    { icon: "lucide:receipt", path: "/hrms/payroll", label: "Payroll", feature: "hrms" },
-    { icon: "lucide:shield", path: "/roles", label: "Roles" },
-    { icon: "lucide:settings", path: "/settings", label: "Settings" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:building-2",        path: "/departments",       label: "Departments",  feature: "departments_module" },
+    { icon: "lucide:users",             path: "/employees",         label: "Employees" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "Leads",        feature: "leads_module" },
+    { icon: "lucide:handshake",         path: "/clients",           label: "Clients",      feature: "clients_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:bar-chart-2",       path: "/analytics",         label: "Analytics",    feature: "analytics" },
+    { icon: "lucide:badge-check",       path: "/hrms",              label: "HRMS",         feature: "hrms" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:timer",             path: "/hrms/shifts",       label: "Shifts",       feature: "hrms" },
+    { icon: "lucide:dollar-sign",       path: "/hrms/salary",       label: "Salary",       feature: "hrms" },
+    { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "Payroll",      feature: "hrms" },
+    { icon: "lucide:shield",            path: "/roles",             label: "Roles" },
   ],
   coo: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:building-2", path: "/departments", label: "Departments" },
-    { icon: "lucide:users", path: "/employees", label: "Employees" },
-    { icon: "lucide:user-plus", path: "/leads", label: "Leads" },
-    { icon: "lucide:handshake", path: "/clients", label: "Clients" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
-    { icon: "lucide:badge-check", path: "/hrms", label: "HRMS", feature: "hrms" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
-    { icon: "lucide:timer", path: "/hrms/shifts", label: "Shifts", feature: "hrms" },
-    { icon: "lucide:dollar-sign", path: "/hrms/salary", label: "Salary", feature: "hrms" },
-    { icon: "lucide:receipt", path: "/hrms/payroll", label: "Payroll", feature: "hrms" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:building-2",        path: "/departments",       label: "Departments",  feature: "departments_module" },
+    { icon: "lucide:users",             path: "/employees",         label: "Employees" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "Leads",        feature: "leads_module" },
+    { icon: "lucide:handshake",         path: "/clients",           label: "Clients",      feature: "clients_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:bar-chart-2",       path: "/analytics",         label: "Analytics",    feature: "analytics" },
+    { icon: "lucide:badge-check",       path: "/hrms",              label: "HRMS",         feature: "hrms" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:timer",             path: "/hrms/shifts",       label: "Shifts",       feature: "hrms" },
+    { icon: "lucide:dollar-sign",       path: "/hrms/salary",       label: "Salary",       feature: "hrms" },
+    { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "Payroll",      feature: "hrms" },
   ],
   dept_head: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:users", path: "/employees", label: "Employees" },
-    { icon: "lucide:user-plus", path: "/leads", label: "Leads" },
-    { icon: "lucide:handshake", path: "/clients", label: "Clients" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
-    { icon: "lucide:badge-check", path: "/hrms", label: "HRMS", feature: "hrms" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
-    { icon: "lucide:timer", path: "/hrms/shifts", label: "Shifts", feature: "hrms" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:users",             path: "/employees",         label: "Employees" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "Leads",        feature: "leads_module" },
+    { icon: "lucide:handshake",         path: "/clients",           label: "Clients",      feature: "clients_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:bar-chart-2",       path: "/analytics",         label: "Analytics",    feature: "analytics" },
+    { icon: "lucide:badge-check",       path: "/hrms",              label: "HRMS",         feature: "hrms" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:timer",             path: "/hrms/shifts",       label: "Shifts",       feature: "hrms" },
   ],
   sales_director: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:user-plus", path: "/leads", label: "Leads" },
-    { icon: "lucide:handshake", path: "/clients", label: "Clients" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:bar-chart-2", path: "/analytics", label: "Analytics", feature: "analytics" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "Leads",        feature: "leads_module" },
+    { icon: "lucide:handshake",         path: "/clients",           label: "Clients",      feature: "clients_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:bar-chart-2",       path: "/analytics",         label: "Analytics",    feature: "analytics" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
   ],
   lead_manager: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:users", path: "/employees", label: "My Team" },
-    { icon: "lucide:user-plus", path: "/leads", label: "Leads" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:users",             path: "/employees",         label: "My Team" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "Leads",        feature: "leads_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
   ],
   sales_manager: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:users", path: "/employees", label: "My Team" },
-    { icon: "lucide:user-plus", path: "/leads", label: "Leads" },
-    { icon: "lucide:handshake", path: "/clients", label: "Clients" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:users",             path: "/employees",         label: "My Team" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "Leads",        feature: "leads_module" },
+    { icon: "lucide:handshake",         path: "/clients",           label: "Clients",      feature: "clients_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
   ],
   lead_employee: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:user-plus", path: "/leads", label: "My Leads" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
-    { icon: "lucide:receipt", path: "/hrms/payroll", label: "My Payslips", feature: "hrms" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "My Leads",     feature: "leads_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "My Payslips",  feature: "hrms" },
   ],
   sales_employee: [
-    { icon: "lucide:layout-dashboard", path: "/dashboard", label: "Dashboard" },
-    { icon: "lucide:user-plus", path: "/leads", label: "My Leads" },
-    { icon: "lucide:handshake", path: "/clients", label: "Clients" },
-    { icon: "lucide:clipboard-list", path: "/tasks", label: "Tasks" },
-    { icon: "lucide:file-text", path: "/reports", label: "Reports" },
-    { icon: "lucide:clock", path: "/hrms/attendance", label: "Attendance", feature: "hrms" },
-    { icon: "lucide:calendar-off", path: "/hrms/leaves", label: "Leaves", feature: "hrms" },
-    { icon: "lucide:receipt", path: "/hrms/payroll", label: "My Payslips", feature: "hrms" },
+    { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
+    { icon: "lucide:user-plus",         path: "/leads",             label: "My Leads",     feature: "leads_module" },
+    { icon: "lucide:handshake",         path: "/clients",           label: "Clients",      feature: "clients_module" },
+    { icon: "lucide:clipboard-list",    path: "/tasks",             label: "Tasks",        feature: "tasks_module" },
+    { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
+    { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
+    { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "My Payslips",  feature: "hrms" },
   ],
 }
 
@@ -115,11 +113,11 @@ export default function Sidebar() {
   const role = user?.is_super_admin ? "ceo" : user?.role
   const allItems = navConfig[role] || navConfig.lead_employee
 
-  // Feature-gated links filter karo
-  const items = allItems.filter((item) => {
-    if (!item.feature) return true
+  // Feature-gated items filter — super admin ko sab milta hai
+  const items = allItems.filter(({ feature }) => {
+    if (!feature) return true
     if (user?.is_super_admin) return true
-    return hasFeature(item.feature)
+    return hasFeature(feature)
   })
 
   const handleLogout = () => {
@@ -137,7 +135,7 @@ export default function Sidebar() {
         <span className="text-white font-bold text-sm">C</span>
       </div>
 
-      {/* Nav */}
+      {/* Nav items */}
       <nav className="flex flex-col items-center gap-1 flex-1 w-full px-2 overflow-y-auto scrollbar-none">
         {items.map(({ icon, path, label }) => (
           <NavLink
@@ -161,7 +159,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Bottom */}
+      {/* Bottom — logout + avatar */}
       <div className="mt-auto flex flex-col items-center gap-2 shrink-0">
         <button
           onClick={handleLogout}
