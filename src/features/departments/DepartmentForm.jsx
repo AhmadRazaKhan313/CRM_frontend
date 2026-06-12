@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, ChevronDown } from "lucide-react"
 import { Icon } from "@iconify/react"
 import departmentsApi from "../../api/departments"
@@ -10,46 +10,61 @@ const TYPES = ["sales", "tech", "seo"]
 
 const typeIcons = {
   sales: "lucide:trending-up",
-  tech: "lucide:code-2",
-  seo: "lucide:search",
+  tech:  "lucide:code-2",
+  seo:   "lucide:search",
 }
 
-const initialForm = {
-  name: "",
-  type: "",
-  description: "",
-  head: "",
-}
+const initialForm = { name: "", type: "", description: "", head: "" }
 
 export default function DepartmentForm() {
   const navigate = useNavigate()
-  const { add } = useDepartmentStore()
-  const [form, setForm] = useState(initialForm)
+  const { id }   = useParams()
+  const isEdit   = Boolean(id)
+
+  const { add, update } = useDepartmentStore()
+  const [form,      setForm]      = useState(initialForm)
   const [employees, setEmployees] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [loading,   setLoading]   = useState(false)
+  const [error,     setError]     = useState("")
 
   useEffect(() => {
     employeesApi.list().then(({ data }) => setEmployees(data))
-  }, [])
+
+    // ✅ Edit mode — load existing data
+    if (isEdit) {
+      departmentsApi.get(id).then(({ data }) => {
+        setForm({
+          name:        data.name        || "",
+          type:        data.type        || "",
+          description: data.description || "",
+          head:        data.head        || "",
+        })
+      })
+    }
+  }, [id])
 
   const set = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) { setError("Department name is required."); return }
-    if (!form.type) { setError("Department type is required."); return }
+    if (!form.type)        { setError("Department type is required."); return }
     setLoading(true)
     setError("")
     try {
-      const { data } = await departmentsApi.create(form)
-      add(data)
+      if (isEdit) {
+        const { data } = await departmentsApi.update(id, form)
+        update(data)
+      } else {
+        const { data } = await departmentsApi.create(form)
+        add(data)
+      }
       navigate("/departments")
     } catch (err) {
       const detail = err.response?.data
       if (typeof detail === "object") {
         const first = Object.values(detail)[0]
-        setError(Array.isArray(first) ? first[0] : first)
+        setError(Array.isArray(first) ? first[0] : String(first))
       } else {
         setError("Something went wrong.")
       }
@@ -60,22 +75,22 @@ export default function DepartmentForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => navigate("/departments")}
+          onClick={() => navigate(isEdit ? `/departments/${id}` : "/departments")}
           className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
         <div>
           <p className="text-xs text-gray-400">Departments</p>
-          <h1 className="text-xl font-bold text-gray-900">Add Department</h1>
+          <h1 className="text-xl font-bold text-gray-900">
+            {isEdit ? "Edit Department" : "Add Department"}
+          </h1>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-
         {/* Basic Info */}
         <div className="bg-white rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-4">
@@ -160,7 +175,7 @@ export default function DepartmentForm() {
         <div className="flex items-center justify-end gap-3 pb-6">
           <button
             type="button"
-            onClick={() => navigate("/departments")}
+            onClick={() => navigate(isEdit ? `/departments/${id}` : "/departments")}
             className="px-5 py-2.5 border border-gray-200 text-gray-500 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors"
           >
             Cancel
@@ -170,7 +185,7 @@ export default function DepartmentForm() {
             disabled={loading}
             className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60"
           >
-            {loading ? "Saving..." : "Add Department"}
+            {loading ? "Saving..." : isEdit ? "Update Department" : "Add Department"}
           </button>
         </div>
       </form>

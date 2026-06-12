@@ -1,15 +1,22 @@
+import { useEffect, useState } from "react"
 import { Icon } from "@iconify/react"
+import analyticsApi from "../../../api/analytics"
 import useAuthStore from "../../../store/authStore"
-
-const stats = [
-  { label: "Assigned Leads", value: "24", icon: "lucide:users", color: "text-blue-600", bg: "bg-blue-50" },
-  { label: "Follow Ups Today", value: "8", icon: "lucide:phone", color: "text-orange-600", bg: "bg-orange-50" },
-  { label: "Converted This Month", value: "12", icon: "lucide:check-circle", color: "text-green-600", bg: "bg-green-50" },
-  { label: "Pending Tasks", value: "5", icon: "lucide:clock", color: "text-primary", bg: "bg-primary/10" },
-]
 
 export default function ManagerDashboard() {
   const user = useAuthStore((s) => s.user)
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+    analyticsApi.overview().then(({ data }) => setData(data)).catch(() => {})
+  }, [])
+
+  const stats = [
+    { label: "Total Leads",    value: data?.leads?.total       ?? "—", icon: "lucide:user-plus",     color: "text-blue-600",   bg: "bg-blue-50" },
+    { label: "Converted",      value: data?.leads?.converted   ?? "—", icon: "lucide:check-circle",  color: "text-green-600",  bg: "bg-green-50" },
+    { label: "Active Clients", value: data?.clients?.active    ?? "—", icon: "lucide:handshake",     color: "text-teal-600",   bg: "bg-teal-50" },
+    { label: "Pending Tasks",  value: data?.tasks?.pending     ?? "—", icon: "lucide:clock",         color: "text-orange-600", bg: "bg-orange-50" },
+  ]
 
   return (
     <div className="space-y-5">
@@ -31,11 +38,40 @@ export default function ManagerDashboard() {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl p-5">
-        <p className="text-sm font-semibold text-gray-800 mb-4">Recent Activity</p>
-        <div className="text-center py-8">
-          <Icon icon="lucide:activity" className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-          <p className="text-sm text-gray-400">No recent activity</p>
+      <div className="grid grid-cols-2 gap-5">
+        <div className="bg-white rounded-2xl p-5">
+          <p className="text-sm font-semibold text-gray-800 mb-4">Lead Status Breakdown</p>
+          <div className="space-y-2">
+            {[
+              { label: "New",        val: data?.leads?.new,        color: "text-blue-600" },
+              { label: "Interested", val: data?.leads?.interested, color: "text-green-600" },
+              { label: "Follow Up",  val: data?.leads?.follow_up,  color: "text-orange-600" },
+              { label: "Converted",  val: data?.leads?.converted,  color: "text-primary" },
+              { label: "Rejected",   val: data?.leads?.rejected,   color: "text-red-500" },
+            ].map(({ label, val, color }) => (
+              <div key={label} className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">{label}</span>
+                <span className={`text-sm font-bold ${color}`}>{val ?? "—"}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-5">
+          <p className="text-sm font-semibold text-gray-800 mb-4">Task Overview</p>
+          <div className="space-y-2">
+            {[
+              { label: "In Progress", val: data?.tasks?.in_progress, color: "text-blue-600" },
+              { label: "Completed",   val: data?.tasks?.completed,   color: "text-green-600" },
+              { label: "Delayed",     val: data?.tasks?.delayed,     color: "text-red-500" },
+              { label: "Pending",     val: data?.tasks?.pending,     color: "text-gray-600" },
+            ].map(({ label, val, color }) => (
+              <div key={label} className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">{label}</span>
+                <span className={`text-sm font-bold ${color}`}>{val ?? "—"}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -5,8 +5,7 @@ import useAuthStore from "../../store/authStore"
 import useFeatureStore from "../../store/featureStore"
 import { getDashboardRoute } from "../../utils/roleUtils"
 
-// feature key → TenantFeature field name mapping
-// agar feature set nahi to hamesha dikhega
+
 const navConfig = {
   ceo: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -24,6 +23,8 @@ const navConfig = {
     { icon: "lucide:dollar-sign",       path: "/hrms/salary",       label: "Salary",       feature: "hrms" },
     { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "Payroll",      feature: "hrms" },
     { icon: "lucide:shield",            path: "/roles",             label: "Roles" },
+    { icon: "lucide:wallet",            path: "/finance",           label: "Finance" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
   coo: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -40,6 +41,8 @@ const navConfig = {
     { icon: "lucide:timer",             path: "/hrms/shifts",       label: "Shifts",       feature: "hrms" },
     { icon: "lucide:dollar-sign",       path: "/hrms/salary",       label: "Salary",       feature: "hrms" },
     { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "Payroll",      feature: "hrms" },
+    { icon: "lucide:wallet",            path: "/finance",           label: "Finance" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
   dept_head: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -53,6 +56,7 @@ const navConfig = {
     { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
     { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
     { icon: "lucide:timer",             path: "/hrms/shifts",       label: "Shifts",       feature: "hrms" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
   sales_director: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -63,6 +67,7 @@ const navConfig = {
     { icon: "lucide:bar-chart-2",       path: "/analytics",         label: "Analytics",    feature: "analytics" },
     { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
     { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
   lead_manager: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -72,6 +77,7 @@ const navConfig = {
     { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
     { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
     { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
   sales_manager: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -82,6 +88,7 @@ const navConfig = {
     { icon: "lucide:file-text",         path: "/reports",           label: "Reports",      feature: "reports_module" },
     { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
     { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
   lead_employee: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -91,6 +98,7 @@ const navConfig = {
     { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
     { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
     { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "My Payslips",  feature: "hrms" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
   sales_employee: [
     { icon: "lucide:layout-dashboard", path: "/dashboard",         label: "Dashboard" },
@@ -101,6 +109,7 @@ const navConfig = {
     { icon: "lucide:clock",             path: "/hrms/attendance",   label: "Attendance",   feature: "hrms" },
     { icon: "lucide:calendar-off",      path: "/hrms/leaves",       label: "Leaves",       feature: "hrms" },
     { icon: "lucide:receipt",           path: "/hrms/payroll",      label: "My Payslips",  feature: "hrms" },
+    { icon: "lucide:bell",              path: "/notifications",     label: "Notifications" },
   ],
 }
 

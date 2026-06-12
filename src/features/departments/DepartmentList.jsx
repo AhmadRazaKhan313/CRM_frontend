@@ -6,9 +6,9 @@ import useDepartmentStore from "../../store/departmentStore"
 import useAuthStore from "../../store/authStore"
 
 const typeConfig = {
-  sales: { color: "bg-blue-50 text-blue-600", icon: "lucide:trending-up", bg: "from-blue-500 to-blue-600" },
-  tech: { color: "bg-purple-50 text-purple-600", icon: "lucide:code-2", bg: "from-purple-500 to-purple-600" },
-  seo: { color: "bg-green-50 text-green-600", icon: "lucide:search", bg: "from-green-500 to-green-600" },
+  sales: { color: "bg-blue-50 text-blue-600",   icon: "lucide:trending-up", bg: "from-blue-500 to-blue-600" },
+  tech:  { color: "bg-purple-50 text-purple-600", icon: "lucide:code-2",     bg: "from-purple-500 to-purple-600" },
+  seo:   { color: "bg-green-50 text-green-600",   icon: "lucide:search",     bg: "from-green-500 to-green-600" },
 }
 
 export default function DepartmentList() {
@@ -16,7 +16,8 @@ export default function DepartmentList() {
   const { departments, loading, fetch } = useDepartmentStore()
   const { user } = useAuthStore()
 
-  const canAdd = user?.role === "ceo" || user?.role === "coo"
+  // ✅ FIX: is_super_admin also has access
+  const canAdd = user?.is_super_admin || user?.role === "ceo" || user?.role === "coo"
 
   useEffect(() => { fetch() }, [])
 
@@ -50,8 +51,8 @@ export default function DepartmentList() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
           { label: "Total Employees", value: departments.reduce((s, d) => s + (d.employee_count || 0), 0), icon: "lucide:users" },
-          { label: "Active Leads", value: departments.reduce((s, d) => s + (d.lead_count || 0), 0), icon: "lucide:user-plus" },
-          { label: "Total Clients", value: departments.reduce((s, d) => s + (d.client_count || 0), 0), icon: "lucide:handshake" },
+          { label: "Active Leads",    value: departments.reduce((s, d) => s + (d.lead_count || 0), 0),     icon: "lucide:user-plus" },
+          { label: "Total Clients",   value: departments.reduce((s, d) => s + (d.client_count || 0), 0),   icon: "lucide:handshake" },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-5 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -91,7 +92,6 @@ export default function DepartmentList() {
               onClick={() => navigate(`/departments/${dept.id}`)}
               className="bg-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
             >
-              {/* Header */}
               <div className={`bg-gradient-to-r ${config.bg} p-5`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -107,14 +107,13 @@ export default function DepartmentList() {
                 )}
               </div>
 
-              {/* Stats */}
               <div className="p-5">
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   {[
-                    { label: "Employees", value: dept.employee_count || 0, icon: "lucide:users" },
-                    { label: "Leads", value: dept.lead_count || 0, icon: "lucide:user-plus" },
-                    { label: "Clients", value: dept.client_count || 0, icon: "lucide:handshake" },
-                    { label: "Active Tasks", value: dept.active_tasks || 0, icon: "lucide:clipboard-list" },
+                    { label: "Employees",    value: dept.employee_count || 0, icon: "lucide:users" },
+                    { label: "Leads",        value: dept.lead_count || 0,     icon: "lucide:user-plus" },
+                    { label: "Clients",      value: dept.client_count || 0,   icon: "lucide:handshake" },
+                    { label: "Active Tasks", value: dept.active_tasks || 0,   icon: "lucide:clipboard-list" },
                   ].map((s, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <div className={`w-7 h-7 rounded-lg ${config.color} flex items-center justify-center shrink-0`}>
@@ -128,7 +127,6 @@ export default function DepartmentList() {
                   ))}
                 </div>
 
-                {/* Head */}
                 <div className="pt-4 border-t border-gray-100">
                   {dept.head_name ? (
                     <div className="flex items-center gap-2">
