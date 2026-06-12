@@ -1,21 +1,41 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Pencil, PowerOff } from "lucide-react"
 import { Icon } from "@iconify/react"
 import useDepartmentStore from "../../store/departmentStore"
+import useAuthStore from "../../store/authStore"
+import departmentsApi from "../../api/departments"
 
 const typeConfig = {
-  sales: { color: "text-blue-600", bg: "bg-blue-50", gradient: "from-blue-500 to-blue-600", icon: "lucide:trending-up" },
-  tech: { color: "text-purple-600", bg: "bg-purple-50", gradient: "from-purple-500 to-purple-600", icon: "lucide:code-2" },
-  seo: { color: "text-green-600", bg: "bg-green-50", gradient: "from-green-500 to-green-600", icon: "lucide:search" },
+  sales: { color: "text-blue-600",   bg: "bg-blue-50",   gradient: "from-blue-500 to-blue-600",   icon: "lucide:trending-up" },
+  tech:  { color: "text-purple-600", bg: "bg-purple-50", gradient: "from-purple-500 to-purple-600", icon: "lucide:code-2" },
+  seo:   { color: "text-green-600",  bg: "bg-green-50",  gradient: "from-green-500 to-green-600",  icon: "lucide:search" },
 }
 
 export default function DepartmentDetail() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { current, fetchOne, loading } = useDepartmentStore()
+  const { id }       = useParams()
+  const navigate     = useNavigate()
+  const { current, fetchOne, loading, remove } = useDepartmentStore()
+  const { user }     = useAuthStore()
+  const [deactivating, setDeactivating] = useState(false)
+
+  const canManage = user?.is_super_admin || user?.role === "ceo" || user?.role === "coo"
 
   useEffect(() => { fetchOne(id) }, [id])
+
+  const handleDeactivate = async () => {
+    if (!window.confirm(`Deactivate "${current.name}" department?`)) return
+    setDeactivating(true)
+    try {
+      await departmentsApi.deactivate(id)
+      remove(Number(id))
+      navigate("/departments")
+    } catch (err) {
+      alert(err.response?.data?.detail || "Something went wrong.")
+    } finally {
+      setDeactivating(false)
+    }
+  }
 
   if (loading || !current) {
     return (
@@ -37,10 +57,31 @@ export default function DepartmentDetail() {
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div>
+        <div className="flex-1">
           <p className="text-xs text-gray-400">Departments</p>
           <h1 className="text-xl font-bold text-gray-900">{current.name}</h1>
         </div>
+
+        {/* ✅ Edit & Deactivate buttons */}
+        {canManage && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/departments/${id}/edit`)}
+              className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              Edit
+            </button>
+            <button
+              onClick={handleDeactivate}
+              disabled={deactivating}
+              className="flex items-center gap-1.5 px-4 py-2 border border-red-200 text-red-500 text-sm font-medium rounded-xl hover:bg-red-50 transition-colors disabled:opacity-60"
+            >
+              <PowerOff className="w-3.5 h-3.5" />
+              {deactivating ? "Deactivating..." : "Deactivate"}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-5">
@@ -62,10 +103,10 @@ export default function DepartmentDetail() {
           {/* Stats Grid */}
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: "Employees", value: current.employee_count, icon: "lucide:users" },
-              { label: "Active Leads", value: current.lead_count, icon: "lucide:user-plus" },
-              { label: "Clients", value: current.client_count, icon: "lucide:handshake" },
-              { label: "Active Tasks", value: current.active_tasks, icon: "lucide:clipboard-list" },
+              { label: "Employees",    value: current.employee_count, icon: "lucide:users" },
+              { label: "Active Leads", value: current.lead_count,     icon: "lucide:user-plus" },
+              { label: "Clients",      value: current.client_count,   icon: "lucide:handshake" },
+              { label: "Active Tasks", value: current.active_tasks,   icon: "lucide:clipboard-list" },
             ].map((s, i) => (
               <div key={i} className="bg-white rounded-2xl p-4 text-center">
                 <div className={`w-9 h-9 rounded-xl ${config.bg} flex items-center justify-center mx-auto mb-2`}>
@@ -82,11 +123,11 @@ export default function DepartmentDetail() {
             <p className="text-sm font-semibold text-gray-800 mb-4">Quick Actions</p>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: "View Employees", icon: "lucide:users", path: `/employees?department=${current.type}` },
-                { label: "View Leads", icon: "lucide:user-plus", path: `/leads?department=${current.type}` },
-                { label: "View Clients", icon: "lucide:handshake", path: `/clients?department=${current.type}` },
-                { label: "View Tasks", icon: "lucide:clipboard-list", path: `/tasks?department=${current.type}` },
-                { label: "View Reports", icon: "lucide:file-text", path: `/reports?department=${current.type}` },
+                { label: "View Employees", icon: "lucide:users",          path: `/employees?department=${current.type}` },
+                { label: "View Leads",     icon: "lucide:user-plus",      path: `/leads?department=${current.type}` },
+                { label: "View Clients",   icon: "lucide:handshake",      path: `/clients?department=${current.type}` },
+                { label: "View Tasks",     icon: "lucide:clipboard-list", path: `/tasks?department=${current.type}` },
+                { label: "View Reports",   icon: "lucide:file-text",      path: `/reports?department=${current.type}` },
               ].map((a, i) => (
                 <button
                   key={i}
@@ -103,13 +144,12 @@ export default function DepartmentDetail() {
 
         {/* Right */}
         <div className="space-y-5">
-          {/* Department Info */}
           <div className="bg-white rounded-2xl p-5">
             <p className="text-sm font-semibold text-gray-800 mb-4">Department Info</p>
             <div className="space-y-3">
               {[
-                { label: "Type", value: current.type },
-                { label: "Status", value: current.is_active ? "Active" : "Inactive" },
+                { label: "Type",    value: current.type },
+                { label: "Status",  value: current.is_active ? "Active" : "Inactive" },
                 { label: "Created", value: new Date(current.created_at).toLocaleDateString() },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between">
@@ -120,7 +160,6 @@ export default function DepartmentDetail() {
             </div>
           </div>
 
-          {/* Department Head */}
           <div className="bg-white rounded-2xl p-5">
             <p className="text-sm font-semibold text-gray-800 mb-4">Department Head</p>
             {current.head_name ? (
