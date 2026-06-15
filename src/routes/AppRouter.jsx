@@ -42,6 +42,10 @@ import InvoiceForm   from "../features/finance/InvoiceForm"
 import InvoiceDetail from "../features/finance/InvoiceDetail"
 import ExpenseList   from "../features/finance/ExpenseList"
 import ExpenseForm   from "../features/finance/ExpenseForm"
+import Settings from "../features/settings/Settings"
+import DeliveryList   from "../features/delivery/DeliveryList"
+import DeliveryForm   from "../features/delivery/DeliveryForm"
+import DeliveryDetail from "../features/delivery/DeliveryDetail"
 
 // HRMS Pages
 import HRMSDashboard from "../features/hrms/HRMSDashboard"
@@ -51,6 +55,7 @@ import ShiftsPage from "../features/hrms/ShiftsPage"
 import SalaryPage from "../features/hrms/SalaryPage"
 import PayrollPage from "../features/hrms/PayrollPage"
 import SalesDirectorDashboard from "../features/dashboard/roles/SalesDirectorDashboard"
+
 
 function DashboardRedirect() {
   const user = useAuthStore((s) => s.user)
@@ -99,6 +104,9 @@ export default function AppRouter() {
           {/* Notifications */}
           <Route path="/notifications" element={<Notifications />} />
 
+            {/* Settings */}
+          <Route path="/settings" element={<Settings />} />
+
           {/* ── CRM Modules ── */}
 
           {/* Leads */}
@@ -130,6 +138,12 @@ export default function AppRouter() {
 
           {/* Analytics */}
           <Route path="/analytics" element={<ModuleGuard feature="analytics"><Analytics /></ModuleGuard>} />
+
+             {/* Delivery */}
+          <Route path="/delivery"          element={<ModuleGuard feature="delivery_module"><DeliveryList /></ModuleGuard>} />
+          <Route path="/delivery/new"      element={<ModuleGuard feature="delivery_module"><DeliveryForm /></ModuleGuard>} />
+          <Route path="/delivery/:id"      element={<ModuleGuard feature="delivery_module"><DeliveryDetail /></ModuleGuard>} />
+          <Route path="/delivery/:id/edit" element={<ModuleGuard feature="delivery_module"><DeliveryForm /></ModuleGuard>} />
 
           {/* HRMS */}
           <Route path="/hrms"            element={<ModuleGuard feature="hrms"><HRMSDashboard /></ModuleGuard>} />

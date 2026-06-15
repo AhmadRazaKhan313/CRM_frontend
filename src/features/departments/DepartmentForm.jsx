@@ -54,7 +54,7 @@ export default function DepartmentForm() {
     try {
       if (isEdit) {
         const { data } = await departmentsApi.update(id, form)
-        update(data)
+        update(id, data)
       } else {
         const { data } = await departmentsApi.create(form)
         add(data)

@@ -1,52 +1,59 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { ArrowLeft, ChevronDown, Upload, X } from "lucide-react"
+import { ArrowLeft, ChevronDown, Upload, X, AlertCircle } from "lucide-react"
 import { Icon } from "@iconify/react"
 import clientsApi from "../../api/clients"
 import useClientStore from "../../store/clientStore"
 
 const statusConfig = {
-  active: { label: "Active", class: "bg-green-50 text-green-600" },
+  active:    { label: "Active",    class: "bg-green-50 text-green-600" },
   completed: { label: "Completed", class: "bg-blue-50 text-blue-600" },
-  on_hold: { label: "On Hold", class: "bg-yellow-50 text-yellow-600" },
+  on_hold:   { label: "On Hold",   class: "bg-yellow-50 text-yellow-600" },
   cancelled: { label: "Cancelled", class: "bg-red-50 text-red-500" },
 }
 
 const tagConfig = {
-  vip: { label: "VIP", class: "bg-purple-50 text-purple-600" },
-  returning: { label: "Returning", class: "bg-blue-50 text-blue-600" },
-  urgent: { label: "Urgent", class: "bg-red-50 text-red-500" },
+  vip:         { label: "VIP",         class: "bg-purple-50 text-purple-600" },
+  returning:   { label: "Returning",   class: "bg-blue-50 text-blue-600" },
+  urgent:      { label: "Urgent",      class: "bg-red-50 text-red-500" },
   high_budget: { label: "High Budget", class: "bg-green-50 text-green-600" },
 }
 
 const paymentStatusConfig = {
-  pending: { label: "Pending", class: "bg-yellow-50 text-yellow-600" },
-  partial: { label: "Partial", class: "bg-orange-50 text-orange-600" },
-  paid: { label: "Paid", class: "bg-green-50 text-green-600" },
+  pending:  { label: "Pending",  class: "bg-yellow-50 text-yellow-600" },
+  partial:  { label: "Partial",  class: "bg-orange-50 text-orange-600" },
+  paid:     { label: "Paid",     class: "bg-green-50 text-green-600" },
   refunded: { label: "Refunded", class: "bg-red-50 text-red-500" },
 }
 
-const STATUSES = ["active", "completed", "on_hold", "cancelled"]
+const STATUSES       = ["active", "completed", "on_hold", "cancelled"]
 const PAYMENT_METHODS = ["bank", "paypal", "wise", "cash"]
 
 export default function ClientDetail() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const { id }     = useParams()
+  const navigate   = useNavigate()
   const { update } = useClientStore()
 
-  const [client, setClient] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [statusUpdating, setStatusUpdating] = useState(false)
-  const [paymentForm, setPaymentForm] = useState({
+  const [client,          setClient]          = useState(null)
+  const [loading,         setLoading]         = useState(true)
+  const [error,           setError]           = useState("")
+  const [statusUpdating,  setStatusUpdating]  = useState(false)
+  const [paymentForm,     setPaymentForm]     = useState({
     amount: "", paid_amount: "", status: "pending", method: "", notes: ""
   })
   const [showPaymentForm, setShowPaymentForm] = useState(false)
-  const [paymentLoading, setPaymentLoading] = useState(false)
-  const [fileUploading, setFileUploading] = useState(false)
+  const [paymentLoading,  setPaymentLoading]  = useState(false)
+  const [fileUploading,   setFileUploading]   = useState(false)
 
   useEffect(() => {
+    setLoading(true)
+    setError("")
     clientsApi.get(id)
       .then(({ data }) => setClient(data))
+      .catch((err) => {
+        const msg = err.response?.data?.detail || "Failed to load client."
+        setError(msg)
+      })
       .finally(() => setLoading(false))
   }, [id])
 
@@ -56,6 +63,8 @@ export default function ClientDetail() {
       const { data } = await clientsApi.update(id, { status: newStatus })
       setClient(data)
       update(id, { status: newStatus })
+    } catch {
+      // silent fail
     } finally {
       setStatusUpdating(false)
     }
@@ -79,6 +88,8 @@ export default function ClientDetail() {
       }))
       setPaymentForm({ amount: "", paid_amount: "", status: "pending", method: "", notes: "" })
       setShowPaymentForm(false)
+    } catch (err) {
+      alert(err.response?.data?.detail || "Failed to add payment.")
     } finally {
       setPaymentLoading(false)
     }
@@ -94,11 +105,14 @@ export default function ClientDetail() {
         ...prev,
         files: [...(prev.files || []), data],
       }))
+    } catch {
+      alert("File upload failed.")
     } finally {
       setFileUploading(false)
     }
   }
 
+  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -107,10 +121,27 @@ export default function ClientDetail() {
     )
   }
 
-  if (!client) return null
+  // Error state — show error instead of blank page
+  if (error || !client) {
+    return (
+      <div className="max-w-xl mx-auto mt-12">
+        <div className="bg-white rounded-2xl p-8 text-center">
+          <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+          <p className="text-sm font-medium text-gray-800 mb-1">Could not load client</p>
+          <p className="text-xs text-gray-400 mb-5">{error || "Client not found."}</p>
+          <button
+            onClick={() => navigate("/clients")}
+            className="px-5 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90"
+          >
+            Back to Clients
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   const totalAmount = client.payments?.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0) || 0
-  const totalPaid = client.payments?.reduce((sum, p) => sum + parseFloat(p.paid_amount || 0), 0) || 0
+  const totalPaid   = client.payments?.reduce((sum, p) => sum + parseFloat(p.paid_amount || 0), 0) || 0
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -128,12 +159,12 @@ export default function ClientDetail() {
         </div>
         <div className="flex items-center gap-2">
           {client.tag && (
-            <span className={`text-xs px-3 py-1.5 rounded-xl font-medium ${tagConfig[client.tag]?.class}`}>
-              {tagConfig[client.tag]?.label}
+            <span className={`text-xs px-3 py-1.5 rounded-xl font-medium ${tagConfig[client.tag]?.class || "bg-gray-100 text-gray-500"}`}>
+              {tagConfig[client.tag]?.label || client.tag}
             </span>
           )}
-          <span className={`text-xs px-3 py-1.5 rounded-xl font-medium ${statusConfig[client.status]?.class}`}>
-            {statusConfig[client.status]?.label}
+          <span className={`text-xs px-3 py-1.5 rounded-xl font-medium ${statusConfig[client.status]?.class || "bg-gray-100 text-gray-500"}`}>
+            {statusConfig[client.status]?.label || client.status}
           </span>
         </div>
       </div>
@@ -146,14 +177,14 @@ export default function ClientDetail() {
             <p className="text-sm font-semibold text-gray-800 mb-4">Contact Information</p>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Email", value: client.email, icon: "lucide:mail" },
-                { label: "Phone", value: client.phone, icon: "lucide:phone" },
-                { label: "Country", value: client.country, icon: "lucide:map-pin" },
-                { label: "Company", value: client.company, icon: "lucide:building-2" },
-                { label: "Department", value: client.department, icon: "lucide:layers" },
-                { label: "Assigned To", value: client.assigned_to_name, icon: "lucide:user" },
-                { label: "Created By", value: client.created_by_name, icon: "lucide:user-plus" },
-                { label: "Added On", value: new Date(client.created_at).toLocaleDateString(), icon: "lucide:calendar" },
+                { label: "Email",        value: client.email,            icon: "lucide:mail" },
+                { label: "Phone",        value: client.phone,            icon: "lucide:phone" },
+                { label: "Country",      value: client.country,          icon: "lucide:map-pin" },
+                { label: "Company",      value: client.company,          icon: "lucide:building-2" },
+                { label: "Department",   value: client.department,       icon: "lucide:layers" },
+                { label: "Assigned To",  value: client.assigned_to_name, icon: "lucide:user" },
+                { label: "Created By",   value: client.created_by_name,  icon: "lucide:user-plus" },
+                { label: "Added On",     value: client.created_at ? new Date(client.created_at).toLocaleDateString() : null, icon: "lucide:calendar" },
               ].map(({ label, value, icon }) => value ? (
                 <div key={label} className="flex items-start gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center shrink-0 mt-0.5">
@@ -183,10 +214,10 @@ export default function ClientDetail() {
               <div className="grid grid-cols-2 gap-4">
                 {Object.entries(
                   client.sales_detail || client.tech_detail || client.seo_detail || {}
-                ).map(([key, value]) => value ? (
+                ).map(([key, value]) => value && key !== "id" ? (
                   <div key={key}>
                     <p className="text-xs text-gray-400 capitalize">{key.replace(/_/g, " ")}</p>
-                    <p className="text-sm font-medium text-gray-800">{value}</p>
+                    <p className="text-sm font-medium text-gray-800">{String(value)}</p>
                   </div>
                 ) : null)}
               </div>
@@ -198,126 +229,95 @@ export default function ClientDetail() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-gray-800">Payments</p>
               <button
-                onClick={() => setShowPaymentForm(!showPaymentForm)}
-                className="text-xs text-primary hover:underline"
+                onClick={() => setShowPaymentForm((v) => !v)}
+                className="flex items-center gap-1.5 text-xs text-primary font-medium hover:text-primary/80"
               >
+                {showPaymentForm ? <X className="w-3.5 h-3.5" /> : null}
                 {showPaymentForm ? "Cancel" : "+ Add Payment"}
               </button>
             </div>
 
             {/* Payment Summary */}
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              {[
-                { label: "Total Amount", value: `$${totalAmount.toFixed(2)}` },
-                { label: "Total Paid", value: `$${totalPaid.toFixed(2)}`, color: "text-green-600" },
-                { label: "Remaining", value: `$${(totalAmount - totalPaid).toFixed(2)}`, color: "text-red-500" },
-              ].map((s, i) => (
-                <div key={i} className="bg-gray-50 rounded-xl p-3 text-center">
-                  <p className={`text-sm font-bold ${s.color || "text-gray-900"}`}>{s.value}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
-                </div>
-              ))}
-            </div>
+            {(client.payments?.length > 0) && (
+              <div className="grid grid-cols-3 gap-3 mb-4 p-3 bg-gray-50 rounded-xl">
+                {[
+                  { label: "Total",    val: totalAmount,               color: "text-gray-800" },
+                  { label: "Paid",     val: totalPaid,                  color: "text-green-600" },
+                  { label: "Balance",  val: totalAmount - totalPaid,    color: totalAmount - totalPaid > 0 ? "text-red-500" : "text-green-600" },
+                ].map(({ label, val, color }) => (
+                  <div key={label} className="text-center">
+                    <p className="text-xs text-gray-400">{label}</p>
+                    <p className={`text-sm font-bold ${color}`}>${parseFloat(val || 0).toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Add Payment Form */}
             {showPaymentForm && (
-              <form onSubmit={handleAddPayment} className="border border-gray-100 rounded-xl p-4 mb-4 space-y-3">
+              <form onSubmit={handleAddPayment} className="mb-4 p-4 bg-gray-50 rounded-xl space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Total Amount</label>
-                    <input
-                      value={paymentForm.amount}
+                    <label className="text-xs text-gray-400 mb-1 block">Total Amount</label>
+                    <input type="number" value={paymentForm.amount}
                       onChange={(e) => setPaymentForm((p) => ({ ...p, amount: e.target.value }))}
-                      placeholder="e.g. 500"
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary"
-                    />
+                      placeholder="0.00"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Paid Amount</label>
-                    <input
-                      value={paymentForm.paid_amount}
+                    <label className="text-xs text-gray-400 mb-1 block">Paid Amount</label>
+                    <input type="number" value={paymentForm.paid_amount}
                       onChange={(e) => setPaymentForm((p) => ({ ...p, paid_amount: e.target.value }))}
-                      placeholder="e.g. 250"
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Status</label>
-                    <div className="relative">
-                      <select
-                        value={paymentForm.status}
-                        onChange={(e) => setPaymentForm((p) => ({ ...p, status: e.target.value }))}
-                        className="w-full appearance-none border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white outline-none focus:border-primary pr-8"
-                      >
-                        {["pending", "partial", "paid", "refunded"].map((s) => (
-                          <option key={s} value={s} className="capitalize">{s}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                    </div>
+                      placeholder="0.00"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Method</label>
-                    <div className="relative">
-                      <select
-                        value={paymentForm.method}
-                        onChange={(e) => setPaymentForm((p) => ({ ...p, method: e.target.value }))}
-                        className="w-full appearance-none border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white outline-none focus:border-primary pr-8"
-                      >
-                        <option value="">Select method</option>
-                        {PAYMENT_METHODS.map((m) => (
-                          <option key={m} value={m} className="capitalize">{m}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-                    </div>
+                    <label className="text-xs text-gray-400 mb-1 block">Status</label>
+                    <select value={paymentForm.status}
+                      onChange={(e) => setPaymentForm((p) => ({ ...p, status: e.target.value }))}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none bg-white">
+                      {["pending", "partial", "paid", "refunded"].map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Method</label>
+                    <select value={paymentForm.method}
+                      onChange={(e) => setPaymentForm((p) => ({ ...p, method: e.target.value }))}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none bg-white">
+                      <option value="">Select method</option>
+                      {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
+                    </select>
                   </div>
                 </div>
-                <input
-                  value={paymentForm.notes}
+                <textarea value={paymentForm.notes}
                   onChange={(e) => setPaymentForm((p) => ({ ...p, notes: e.target.value }))}
-                  placeholder="Payment notes..."
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary"
-                />
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={paymentLoading}
-                    className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
-                  >
-                    {paymentLoading ? "Saving..." : "Add Payment"}
-                  </button>
-                </div>
+                  placeholder="Notes..." rows={2}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none resize-none" />
+                <button type="submit" disabled={paymentLoading}
+                  className="w-full py-2 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90 disabled:opacity-60">
+                  {paymentLoading ? "Saving..." : "Add Payment"}
+                </button>
               </form>
             )}
 
-            {/* Payment List */}
-            {client.payments?.length === 0 ? (
+            {/* Payments List */}
+            {!client.payments?.length ? (
               <div className="text-center py-6">
-                <Icon icon="lucide:credit-card" className="w-8 h-8 text-gray-200 mx-auto mb-2" />
                 <p className="text-sm text-gray-400">No payments recorded</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {client.payments?.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div className="divide-y divide-gray-50">
+                {client.payments.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between py-3">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-gray-800">${parseFloat(p.amount).toFixed(2)}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-lg font-medium ${paymentStatusConfig[p.status]?.class}`}>
-                          {paymentStatusConfig[p.status]?.label}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        Paid: ${parseFloat(p.paid_amount).toFixed(2)}
-                        {p.method && ` · ${p.method}`}
-                      </p>
+                      <p className="text-sm font-medium text-gray-800">${parseFloat(p.paid_amount || 0).toFixed(2)} / ${parseFloat(p.amount || 0).toFixed(2)}</p>
+                      <p className="text-xs text-gray-400 capitalize">{p.method || "—"} · {p.notes || ""}</p>
                     </div>
-                    <p className="text-xs text-gray-400">
-                      {new Date(p.created_at).toLocaleDateString()}
-                    </p>
+                    <span className={`text-xs px-2.5 py-1 rounded-lg font-medium capitalize ${paymentStatusConfig[p.status]?.class || "bg-gray-100 text-gray-500"}`}>
+                      {paymentStatusConfig[p.status]?.label || p.status}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -326,42 +326,33 @@ export default function ClientDetail() {
 
           {/* Files */}
           <div className="bg-white rounded-2xl p-5">
-            <p className="text-sm font-semibold text-gray-800 mb-4">Files</p>
-            <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-primary/40 transition-colors mb-4">
-              {fileUploading ? (
-                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <Upload className="w-4 h-4 text-gray-300 mb-1" />
-                  <span className="text-xs text-gray-400">Click to upload file</span>
-                </>
-              )}
-              <input type="file" className="hidden" onChange={handleFileUpload} />
-            </label>
-
-            {client.files?.length === 0 ? (
-              <div className="text-center py-4">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold text-gray-800">Files</p>
+              <label className="flex items-center gap-1.5 text-xs text-primary font-medium cursor-pointer hover:text-primary/80">
+                <Upload className="w-3.5 h-3.5" />
+                {fileUploading ? "Uploading..." : "Upload File"}
+                <input type="file" className="hidden" onChange={handleFileUpload} disabled={fileUploading} />
+              </label>
+            </div>
+            {!client.files?.length ? (
+              <div className="text-center py-6">
                 <p className="text-sm text-gray-400">No files uploaded</p>
               </div>
             ) : (
               <div className="space-y-2">
-                {client.files?.map((f) => (
-                  <div key={f.id} className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-2">
+                {client.files.map((f) => (
+                  <div key={f.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-2.5">
                       <Icon icon="lucide:file" className="w-4 h-4 text-gray-400" />
-                      <span className="text-xs text-gray-600 truncate max-w-xs">{f.name}</span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-800">{f.name}</p>
+                        <p className="text-xs text-gray-400">{f.uploaded_by_name}</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400">{f.uploaded_by_name}</span>
-                      <a
-                        href={f.file}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-gray-200 text-gray-400 transition-colors"
-                      >
-                        <Icon icon="lucide:download" className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
+                    <a href={f.file} target="_blank" rel="noreferrer"
+                      className="text-xs text-primary font-medium hover:underline">
+                      Download
+                    </a>
                   </div>
                 ))}
               </div>
@@ -371,22 +362,19 @@ export default function ClientDetail() {
 
         {/* Right */}
         <div className="space-y-5">
-          {/* Status */}
+          {/* Status Change */}
           <div className="bg-white rounded-2xl p-5">
             <p className="text-sm font-semibold text-gray-800 mb-3">Update Status</p>
             <div className="space-y-2">
               {STATUSES.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleStatusChange(s)}
+                <button key={s} onClick={() => handleStatusChange(s)}
                   disabled={statusUpdating || client.status === s}
                   className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all capitalize ${
                     client.status === s
-                      ? statusConfig[s].class + " ring-1 ring-current"
+                      ? (statusConfig[s]?.class || "bg-gray-100 text-gray-500") + " ring-1 ring-current"
                       : "bg-gray-50 text-gray-500 hover:bg-gray-100"
-                  } disabled:cursor-not-allowed`}
-                >
-                  {s.replace("_", " ")}
+                  } disabled:cursor-not-allowed`}>
+                  {statusConfig[s]?.label || s}
                 </button>
               ))}
             </div>
@@ -394,41 +382,34 @@ export default function ClientDetail() {
 
           {/* Tags */}
           <div className="bg-white rounded-2xl p-5">
-            <p className="text-sm font-semibold text-gray-800 mb-3">Client Tag</p>
+            <p className="text-sm font-semibold text-gray-800 mb-3">Tags</p>
             <div className="space-y-2">
               {Object.entries(tagConfig).map(([key, { label, class: cls }]) => (
-                <button
-                  key={key}
-                  onClick={() => handleTagChange(key)}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                    client.tag === key
-                      ? cls + " ring-1 ring-current"
-                      : "bg-gray-50 text-gray-500 hover:bg-gray-100"
-                  }`}
-                >
+                <button key={key} onClick={() => handleTagChange(key)}
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all capitalize ${
+                    client.tag === key ? cls + " ring-1 ring-current" : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                  }`}>
                   {label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Client Meta */}
-          <div className="bg-white rounded-2xl p-5">
-            <p className="text-sm font-semibold text-gray-800 mb-3">Client Info</p>
-            <div className="space-y-2.5">
-              {[
-                { label: "Client ID", value: `#${client.id}` },
-                { label: "Department", value: client.department },
-                { label: "Created", value: new Date(client.created_at).toLocaleDateString() },
-                { label: "Last Updated", value: new Date(client.updated_at).toLocaleDateString() },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">{label}</span>
-                  <span className="text-xs font-medium text-gray-700 capitalize">{value}</span>
+          {/* Converted from Lead */}
+          {client.converted_from && (
+            <div className="bg-white rounded-2xl p-5">
+              <p className="text-sm font-semibold text-gray-800 mb-2">Converted From</p>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <Icon icon="lucide:user-plus" className="w-3.5 h-3.5 text-blue-500" />
                 </div>
-              ))}
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{client.converted_from_name}</p>
+                  <p className="text-xs text-gray-400">Lead</p>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

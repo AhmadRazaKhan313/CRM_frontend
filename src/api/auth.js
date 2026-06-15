@@ -15,6 +15,9 @@ const auth = {
 
   refresh: (refresh) =>
     http.post("/auth/token/refresh/", { refresh }),
+
+  changePassword: (old_password, new_password) =>
+    http.post("/auth/change-password/", { old_password, new_password }),
 }
 
 export default auth

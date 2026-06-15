@@ -9,7 +9,7 @@ const leads = {
   assign:      (id, user_id) => http.post(`/leads/${id}/assign/`, { user_id }),
   addActivity: (id, data)    => http.post(`/leads/${id}/activity/`, data),
 
-  // ── Bulk Upload — CSV ya Excel dono accept ─────────────────
+  // Bulk Upload — CSV ya Excel
   bulkUpload: (file) => {
     const form = new FormData()
     form.append("file", file)
@@ -18,23 +18,23 @@ const leads = {
     })
   },
 
-  // ── Export — format: "csv" | "excel" ──────────────────────
+  // Export — fmt: "csv" | "excel"  (NOTE: "fmt" not "format" — format is DRF reserved)
   exportCSV: (params = {}) =>
     http.get("/leads/export/", {
-      params: { ...params, format: "csv" },
+      params: { ...params, fmt: "csv" },
       responseType: "blob",
     }),
 
   exportExcel: (params = {}) =>
     http.get("/leads/export/", {
-      params: { ...params, format: "excel" },
+      params: { ...params, fmt: "excel" },
       responseType: "blob",
     }),
 
-  // ── Template — format: "csv" | "excel" ────────────────────
-  downloadTemplate: (format = "csv") =>
+  // Template — fmt: "csv" | "excel"
+  downloadTemplate: (fmt = "csv") =>
     http.get("/leads/template/", {
-      params: { format },
+      params: { fmt },
       responseType: "blob",
     }),
 }
