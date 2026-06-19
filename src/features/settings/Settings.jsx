@@ -100,11 +100,11 @@ export default function Settings() {
             </div>
             <div>
               <p className="text-xs text-gray-400">Role</p>
-              <p className="text-sm font-medium text-gray-800 capitalize">{user?.role?.replace("_", " ")}</p>
+              <p className="text-sm font-medium text-gray-800">{(user?.roles || []).join(", ") || (user?.is_super_admin ? "Super Admin" : "—")}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400">Department</p>
-              <p className="text-sm font-medium text-gray-800 capitalize">{user?.department || "—"}</p>
+              <p className="text-sm font-medium text-gray-800">{user?.tenant?.name || "—"}</p>
             </div>
           </div>
         </div>
