@@ -1,11 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom"
 import SignIn from "../features/auth/SignIn"
-import SignUp from "../features/auth/SignUp"
-import TenantRegister from "../features/auth/TenantRegister"
-import CEODashboard from "../features/dashboard/roles/CEODashboard"
-import DeptHeadDashboard from "../features/dashboard/roles/DeptHeadDashboard"
-import ManagerDashboard from "../features/dashboard/roles/ManagerDashboard"
-import EmployeeDashboard from "../features/dashboard/roles/EmployeeDashboard"
+import Dashboard from "../features/dashboard/Dashboard"
 import RoleList from "../features/roles/RoleList"
 import RoleForm from "../features/roles/RoleForm"
 import EmployeeList from "../features/employees/EmployeeList"
@@ -35,8 +30,6 @@ import Notifications from "../features/notifications/Notifications"
 import PageWrapper from "../components/layout/PageWrapper"
 import ProtectedRoute from "./ProtectedRoute"
 import ModuleGuard from "../components/guards/ModuleGuard"
-import useAuthStore from "../store/authStore"
-import { getDashboardRoute } from "../utils/roleUtils"
 import InvoiceList   from "../features/finance/InvoiceList"
 import InvoiceForm   from "../features/finance/InvoiceForm"
 import InvoiceDetail from "../features/finance/InvoiceDetail"
@@ -54,32 +47,18 @@ import LeavePage from "../features/hrms/LeavePage"
 import ShiftsPage from "../features/hrms/ShiftsPage"
 import SalaryPage from "../features/hrms/SalaryPage"
 import PayrollPage from "../features/hrms/PayrollPage"
-import SalesDirectorDashboard from "../features/dashboard/roles/SalesDirectorDashboard"
-
-
-function DashboardRedirect() {
-  const user = useAuthStore((s) => s.user)
-  return <Navigate to={getDashboardRoute(user?.role)} replace />
-}
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/signin" replace />} />
       <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/register" element={<TenantRegister />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<PageWrapper />}>
 
-          {/* Dashboards */}
-          <Route path="/dashboard"           element={<DashboardRedirect />} />
-          <Route path="/dashboard/ceo"       element={<CEODashboard />} />
-          <Route path="/dashboard/dept-head" element={<DeptHeadDashboard />} />
-          <Route path="/dashboard/manager"   element={<ManagerDashboard />} />
-          <Route path="/dashboard/employee"  element={<EmployeeDashboard />} />
-          <Route path="/dashboard/sales-director" element={<SalesDirectorDashboard />} />
+          {/* Single dynamic dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* Roles */}
           <Route path="/roles"          element={<RoleList />} />
@@ -87,27 +66,23 @@ export default function AppRouter() {
           <Route path="/roles/:id/edit" element={<RoleForm />} />
 
           {/* Employees */}
-          <Route path="/employees"           element={<EmployeeList />} />
-          <Route path="/employees/new"       element={<EmployeeForm />} />
-          <Route path="/employees/:id"       element={<EmployeeDetail />} />
-          <Route path="/employees/:id/edit"  element={<EmployeeForm />} />
+          <Route path="/employees"          element={<EmployeeList />} />
+          <Route path="/employees/new"      element={<EmployeeForm />} />
+          <Route path="/employees/:id"      element={<EmployeeDetail />} />
+          <Route path="/employees/:id/edit" element={<EmployeeForm />} />
 
           {/* Finance */}
-          <Route path="/finance"                  element={<Finance />} />
-          <Route path="/finance/invoices"         element={<InvoiceList />} />
-          <Route path="/finance/invoices/new"     element={<InvoiceForm />} />
-          <Route path="/finance/invoices/:id"     element={<InvoiceDetail />} />
-          <Route path="/finance/invoices/:id/edit" element={<InvoiceForm />} />
-          <Route path="/finance/expenses"         element={<ExpenseList />} />
-          <Route path="/finance/expenses/new"     element={<ExpenseForm />} />
+          <Route path="/finance"                   element={<ModuleGuard feature="finance_module"><Finance /></ModuleGuard>} />
+          <Route path="/finance/invoices"          element={<ModuleGuard feature="finance_module"><InvoiceList /></ModuleGuard>} />
+          <Route path="/finance/invoices/new"      element={<ModuleGuard feature="finance_module"><InvoiceForm /></ModuleGuard>} />
+          <Route path="/finance/invoices/:id"      element={<ModuleGuard feature="finance_module"><InvoiceDetail /></ModuleGuard>} />
+          <Route path="/finance/invoices/:id/edit" element={<ModuleGuard feature="finance_module"><InvoiceForm /></ModuleGuard>} />
+          <Route path="/finance/expenses"          element={<ModuleGuard feature="finance_module"><ExpenseList /></ModuleGuard>} />
+          <Route path="/finance/expenses/new"      element={<ModuleGuard feature="finance_module"><ExpenseForm /></ModuleGuard>} />
 
-          {/* Notifications */}
+          {/* Notifications + Settings */}
           <Route path="/notifications" element={<Notifications />} />
-
-            {/* Settings */}
-          <Route path="/settings" element={<Settings />} />
-
-          {/* ── CRM Modules ── */}
+          <Route path="/settings"      element={<Settings />} />
 
           {/* Leads */}
           <Route path="/leads"          element={<ModuleGuard feature="leads_module"><LeadList /></ModuleGuard>} />
@@ -139,7 +114,7 @@ export default function AppRouter() {
           {/* Analytics */}
           <Route path="/analytics" element={<ModuleGuard feature="analytics"><Analytics /></ModuleGuard>} />
 
-             {/* Delivery */}
+          {/* Delivery */}
           <Route path="/delivery"          element={<ModuleGuard feature="delivery_module"><DeliveryList /></ModuleGuard>} />
           <Route path="/delivery/new"      element={<ModuleGuard feature="delivery_module"><DeliveryForm /></ModuleGuard>} />
           <Route path="/delivery/:id"      element={<ModuleGuard feature="delivery_module"><DeliveryDetail /></ModuleGuard>} />
