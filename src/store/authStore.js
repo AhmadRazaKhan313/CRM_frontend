@@ -4,7 +4,7 @@ import useFeatureStore from "./featureStore"
 
 const useAuthStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       access: null,
       refresh: null,
@@ -21,6 +21,23 @@ const useAuthStore = create(
       },
 
       updateUser: (user) => set({ user }),
+
+      // Permission check — super admin ke paas sab hota hai
+      hasPermission: (codename) => {
+        const user = get().user
+        if (!user) return false
+        if (user.is_super_admin) return true
+        return (user.permissions || []).includes(codename)
+      },
+
+      // Multiple permissions mein se koi ek bhi ho
+      hasAnyPermission: (codenames = []) => {
+        const user = get().user
+        if (!user) return false
+        if (user.is_super_admin) return true
+        const perms = user.permissions || []
+        return codenames.some((c) => perms.includes(c))
+      },
     }),
     {
       name: "auth",
