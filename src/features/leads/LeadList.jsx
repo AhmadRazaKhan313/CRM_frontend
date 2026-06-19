@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom"
 import { Icon } from "@iconify/react"
 import useLeadStore from "../../store/leadStore"
 import leadsApi from "../../api/leads"
+import departmentsApi from "../../api/departments"
 import useAuthStore from "../../store/authStore"
 
 const STATUS_OPTIONS = ["new", "contacted", "interested", "follow_up", "converted", "rejected"]
-const DEPARTMENTS    = ["sales", "tech", "seo"]
 const SOURCES        = ["instagram", "facebook", "linkedin", "whatsapp", "website", "email", "other"]
 
 const statusConfig = {
@@ -131,14 +131,20 @@ function UploadResultModal({ result, onClose }) {
 export default function LeadList() {
   const navigate     = useNavigate()
   const user         = useAuthStore((s) => s.user)
+  const [departments, setDepartments] = useState([])
+  const hasPermission = useAuthStore((s) => s.hasPermission)
   const { leads, loading, filters, setFilters, fetch } = useLeadStore()
   const fileInputRef = useRef(null)
+
+  useEffect(() => {
+    departmentsApi.list().then(({ data }) => setDepartments(data)).catch(() => {})
+  }, [])
 
   const [uploading,    setUploading]    = useState(false)
   const [downloading,  setDownloading]  = useState(false)
   const [uploadResult, setUploadResult] = useState(null)
 
-  const canBulk = ["ceo", "coo", "dept_head", "lead_manager", "sales_manager"].includes(user?.role) || user?.is_super_admin
+  const canBulk = user?.is_super_admin || hasPermission("leads.create")
 
   useEffect(() => { fetch() }, [filters])
 
@@ -253,7 +259,7 @@ export default function LeadList() {
         </div>
         {[
           { key: "status",     options: STATUS_OPTIONS, placeholder: "All Status" },
-          { key: "department", options: DEPARTMENTS,    placeholder: "All Depts" },
+          { key: "department", options: departments.map((d) => ({ value: d.id, label: d.name })), placeholder: "All Depts" },
           { key: "source",     options: SOURCES,        placeholder: "All Sources" },
         ].map(({ key, options, placeholder }) => (
           <div key={key} className="relative">
@@ -392,7 +398,7 @@ export default function LeadList() {
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="text-xs text-gray-600 capitalize">{lead.department || "—"}</span>
+                      <span className="text-xs text-gray-600 capitalize">{lead.department_name || "—"}</span>
                     </td>
 
                     <td className="px-4 py-3">

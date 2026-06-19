@@ -2,10 +2,10 @@ import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, ChevronDown } from "lucide-react"
 import deliveryApi from "../../api/delivery"
+import departmentsApi from "../../api/departments"
 import clientsApi from "../../api/clients"
 import employeesApi from "../../api/employees"
 
-const DEPARTMENTS = ["sales", "tech", "seo"]
 
 export default function DeliveryForm() {
   const navigate = useNavigate()
@@ -18,8 +18,13 @@ export default function DeliveryForm() {
   })
   const [clients,   setClients]   = useState([])
   const [employees, setEmployees] = useState([])
+  const [departments, setDepartments] = useState([])
   const [loading,   setLoading]   = useState(false)
   const [error,     setError]     = useState("")
+
+  useEffect(() => {
+    departmentsApi.list().then(({ data }) => setDepartments(data)).catch(() => {})
+  }, [])
 
   useEffect(() => {
     clientsApi.list().then(({ data }) => setClients(data)).catch(() => {})
@@ -102,7 +107,7 @@ export default function DeliveryForm() {
                 <select value={form.department} onChange={setField("department")}
                   className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 pr-9 text-sm outline-none focus:border-primary bg-white capitalize">
                   <option value="">Select</option>
-                  {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                  {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>

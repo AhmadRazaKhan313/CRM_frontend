@@ -206,6 +206,7 @@ function AssignModal({ shifts, onClose }) {
 
 export default function ShiftsPage() {
   const user = useAuthStore((s) => s.user)
+  const hasPermission = useAuthStore((s) => s.hasPermission)
   const { shifts, fetchShifts } = useHrmsStore()
 
   const [showCreate, setShowCreate] = useState(false)
@@ -213,7 +214,7 @@ export default function ShiftsPage() {
   const [showAssign, setShowAssign] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const canManage = ["ceo", "coo", "dept_head"].includes(user?.role) || user?.is_super_admin
+  const canManage = user?.is_super_admin || hasPermission("hrms.edit")
 
   useEffect(() => {
     fetchShifts()

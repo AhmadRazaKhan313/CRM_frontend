@@ -184,7 +184,7 @@ export default function LeadDetail() {
             <p className="text-sm font-semibold text-gray-800 mb-4">Lead Information</p>
             <div className="grid grid-cols-2 gap-4">
               <InfoRow label="Country"    value={lead.country}    icon="lucide:map-pin" />
-              <InfoRow label="Department" value={lead.department} icon="lucide:layers" />
+              <InfoRow label="Department" value={lead.department_name || "—"} icon="lucide:layers" />
               <InfoRow label="Source"     value={lead.source}     icon="lucide:globe" />
               <InfoRow label="Phone"      value={lead.phone}      icon="lucide:phone" />
               <InfoRow label="Contact No" value={lead.contact_no} icon="lucide:smartphone" />

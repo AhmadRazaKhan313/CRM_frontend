@@ -4,11 +4,11 @@ import { ChevronDown } from "lucide-react"
 import { Icon } from "@iconify/react"
 import leadsApi from "../../api/leads"
 import employeesApi from "../../api/employees"
+import departmentsApi from "../../api/departments"
 import useLeadStore from "../../store/leadStore"
 import COUNTRIES from "../../utils/countries"
 import useAuthStore from "../../store/authStore"
 
-const DEPARTMENTS = ["sales", "tech", "seo"]
 
 const STATUSES = [
   { value: "new",        label: "New" },
@@ -124,8 +124,9 @@ export default function LeadForm() {
   const navigate = useNavigate()
   const { add }  = useLeadStore()
 
-  const [form, setForm]                   = useState({ ...INITIAL_FORM, department: user?.department || "" })
+  const [form, setForm]                   = useState({ ...INITIAL_FORM, department: "" })
   const [employees, setEmployees]         = useState([])
+  const [departments, setDepartments]     = useState([])
   const [loading, setLoading]             = useState(false)
   const [error, setError]                 = useState("")
   const [countrySearch, setCountrySearch] = useState("")
@@ -133,7 +134,8 @@ export default function LeadForm() {
   const [activeStaffPlatforms, setActiveStaffPlatforms] = useState(new Set())
 
   useEffect(() => {
-    employeesApi.list().then(({ data }) => setEmployees(data))
+    employeesApi.list().then(({ data }) => setEmployees(data)).catch(() => {})
+    departmentsApi.list().then(({ data }) => setDepartments(data)).catch(() => {})
   }, [])
 
   const set    = (field) => (e)   => setForm((p) => ({ ...p, [field]: e.target.value }))
@@ -392,8 +394,8 @@ export default function LeadForm() {
             <Field label="Department" required>
               <SelectInput value={form.department} onChange={set("department")}>
                 <option value="">Select department</option>
-                {DEPARTMENTS.map((d) => (
-                  <option key={d} value={d} className="capitalize">{d}</option>
+                {departments.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
                 ))}
               </SelectInput>
             </Field>

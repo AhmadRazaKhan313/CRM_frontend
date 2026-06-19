@@ -139,8 +139,8 @@ export default function ClientList() {
                     <p className="text-xs text-gray-400">{client.email || client.phone}</p>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className={`text-xs px-2.5 py-1 rounded-lg font-medium capitalize ${deptColors[client.department] || "bg-gray-100 text-gray-500"}`}>
-                      {client.department}
+                    <span className="text-xs px-2.5 py-1 rounded-lg font-medium bg-gray-100 text-gray-600">
+                      {client.department_name || "—"}
                     </span>
                   </td>
                   <td className="px-5 py-3.5">

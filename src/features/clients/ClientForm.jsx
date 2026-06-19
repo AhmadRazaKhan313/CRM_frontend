@@ -1,12 +1,12 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { ChevronDown } from "lucide-react"
 import clientsApi from "../../api/clients"
 import useClientStore from "../../store/clientStore"
 import useAuthStore from "../../store/authStore"
+import departmentsApi from "../../api/departments"
 import COUNTRIES from "../../utils/countries"
 
-const DEPARTMENTS = ["sales", "tech", "seo"]
 const TAGS = ["vip", "returning", "urgent", "high_budget"]
 
 const SALES_SERVICES = ["Assignment Help", "Thesis Support", "Dissertation", "Coursework", "Research Paper", "CIPD", "Project Assistance", "Career Services"]
@@ -96,7 +96,8 @@ export default function ClientForm() {
   const { add } = useClientStore()
   const user = useAuthStore((s) => s.user)
 
-  const [form, setForm] = useState({ ...initialForm, department: user?.department || "" })
+  const [form, setForm] = useState({ ...initialForm, department: "" })
+  const [departments, setDepartments] = useState([])
   const [sales, setSales] = useState(initialSales)
   const [tech, setTech] = useState(initialTech)
   const [seo, setSEO] = useState(initialSEO)
@@ -105,6 +106,10 @@ export default function ClientForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
+
+  useEffect(() => {
+    departmentsApi.list().then(({ data }) => setDepartments(data)).catch(() => {})
+  }, [])
 
   const f = (setter) => (field) => (e) => setter((p) => ({ ...p, [field]: e.target.value }))
 
@@ -217,7 +222,7 @@ export default function ClientForm() {
               <Select
                 value={form.department}
                 onChange={f(setForm)("department")}
-                options={DEPARTMENTS}
+                options={departments.map((d) => ({ value: d.id, label: d.name }))}
                 placeholder="Select department"
               />
             </Field>

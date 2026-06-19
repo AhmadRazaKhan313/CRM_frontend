@@ -125,7 +125,7 @@ export default function TaskForm() {
               >
                 <option value="">Select employee</option>
                 {employees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>{emp.full_name} — {emp.role_display}</option>
+                  <option key={emp.id} value={emp.id}>{emp.full_name}</option>
                 ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />

@@ -129,8 +129,9 @@ export default function LeavePage() {
   const [statusFilter, setStatusFilter] = useState("")
   const [approving, setApproving] = useState(null)
 
-  const isEmployee = ["lead_employee", "sales_employee"].includes(user?.role)
-  const canApprove = ["ceo", "coo", "dept_head"].includes(user?.role) || user?.is_super_admin
+  const hasPermission = useAuthStore((s) => s.hasPermission)
+  const isEmployee = !user?.is_super_admin && !hasPermission("hrms.edit")
+  const canApprove = user?.is_super_admin || hasPermission("hrms.approve")
 
   useEffect(() => {
     fetchLeaveTypes()

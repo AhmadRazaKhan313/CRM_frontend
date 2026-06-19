@@ -1,16 +1,18 @@
-import { useState } from "react"
+import departmentsApi from "../../api/departments"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft } from "lucide-react"
 import financeApi from "../../api/finance"
 
 const CATEGORIES=["salary","office","marketing","tools","travel","other"]
-const DEPARTMENTS=["sales","tech","seo"]
 const CURRENCIES=["USD","PKR","GBP","EUR","AED"]
 const initialForm={title:"",amount:"",currency:"USD",category:"other",department:"",date:"",notes:""}
 
 export default function ExpenseForm() {
   const navigate=useNavigate()
   const [form,setForm]=useState(initialForm); const [loading,setLoading]=useState(false); const [error,setError]=useState("")
+  const [departments, setDepartments] = useState([])
+  useEffect(() => { departmentsApi.list().then(({ data }) => setDepartments(data)).catch(() => {}) }, [])
   const setField=(k)=>(e)=>setForm(p=>({...p,[k]:e.target.value}))
 
   const handleSubmit=async(e)=>{
@@ -39,7 +41,7 @@ export default function ExpenseForm() {
             <div><label className="text-xs text-gray-400 mb-1.5 block">Amount *</label><input value={form.amount} onChange={setField("amount")} type="number" required placeholder="0.00" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary"/></div>
             <div><label className="text-xs text-gray-400 mb-1.5 block">Currency</label><select value={form.currency} onChange={setField("currency")} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary bg-white">{CURRENCIES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
             <div><label className="text-xs text-gray-400 mb-1.5 block">Category</label><select value={form.category} onChange={setField("category")} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary bg-white capitalize">{CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}</select></div>
-            <div><label className="text-xs text-gray-400 mb-1.5 block">Department</label><select value={form.department} onChange={setField("department")} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary bg-white"><option value="">General</option>{DEPARTMENTS.map(d=><option key={d} value={d} className="capitalize">{d}</option>)}</select></div>
+            <div><label className="text-xs text-gray-400 mb-1.5 block">Department</label><select value={form.department} onChange={setField("department")} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary bg-white"><option value="">General</option>{departments.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></div>
             <div className="col-span-2"><label className="text-xs text-gray-400 mb-1.5 block">Date *</label><input value={form.date} onChange={setField("date")} type="date" required className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary"/></div>
           </div>
           <div><label className="text-xs text-gray-400 mb-1.5 block">Notes</label><textarea value={form.notes} onChange={setField("notes")} rows={3} placeholder="Additional details..." className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-primary resize-none"/></div>

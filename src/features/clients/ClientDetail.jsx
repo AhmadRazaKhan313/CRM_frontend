@@ -209,7 +209,7 @@ export default function ClientDetail() {
           {(client.sales_detail || client.tech_detail || client.seo_detail) && (
             <div className="bg-white rounded-2xl p-5">
               <p className="text-sm font-semibold text-gray-800 mb-4 capitalize">
-                {client.department} Project Details
+                {client.department_name || ""} Project Details
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {Object.entries(

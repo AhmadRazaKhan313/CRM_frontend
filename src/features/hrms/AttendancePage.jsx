@@ -28,7 +28,8 @@ export default function AttendancePage() {
     year: new Date().getFullYear(),
   })
 
-  const isEmployee = ["lead_employee", "sales_employee"].includes(user?.role)
+  const hasPermission = useAuthStore((s) => s.hasPermission)
+  const isEmployee = !user?.is_super_admin && !hasPermission("hrms.edit")
 
   useEffect(() => {
     fetchAttendance(filters)

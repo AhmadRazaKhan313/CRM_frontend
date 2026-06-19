@@ -154,8 +154,9 @@ export default function SalaryPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [editTarget, setEditTarget] = useState(null)
 
-  const canManage = ["ceo", "coo"].includes(user?.role) || user?.is_super_admin
-  const isEmployee = ["lead_employee", "sales_employee"].includes(user?.role)
+  const canManage = user?.is_super_admin || hasPermission("hrms.edit")
+  const hasPermission = useAuthStore((s) => s.hasPermission)
+  const isEmployee = !user?.is_super_admin && !hasPermission("hrms.edit")
 
   useEffect(() => {
     if (!isEmployee) fetchSalaryList()

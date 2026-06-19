@@ -5,7 +5,6 @@ import { Icon } from "@iconify/react"
 import reportsApi from "../../api/reports"
 import useReportStore from "../../store/reportStore"
 import useAuthStore from "../../store/authStore"
-import { ROLES } from "../../utils/roleUtils"
 
 const statusConfig = {
   submitted: { label: "Submitted", class: "bg-blue-50 text-blue-600" },
@@ -24,10 +23,8 @@ export default function ReportDetail() {
 
   useEffect(() => { fetchOne(id) }, [id])
 
-  const isManager = [
-    ROLES.CEO, ROLES.COO, ROLES.DEPT_HEAD,
-    ROLES.SALES_DIRECTOR, ROLES.LEAD_MANAGER, ROLES.SALES_MANAGER
-  ].includes(user?.role)
+  const hasPermission = useAuthStore((s) => s.hasPermission)
+  const isManager = user?.is_super_admin || hasPermission("reports.approve")
 
   const handleReview = async (status) => {
     setReviewing(true)

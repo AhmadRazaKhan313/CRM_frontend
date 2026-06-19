@@ -310,12 +310,12 @@ export default function Analytics() {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-800">{emp.name}</p>
-                            <p className="text-xs text-gray-400">{emp.role}</p>
+                            <p className="text-xs text-gray-400">{(emp.roles || []).join(", ")}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-xs text-gray-600 capitalize">{emp.department}</span>
+                        <span className="text-xs text-gray-600"></span>
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-medium text-gray-800">{emp.total_leads}</span>

@@ -5,7 +5,6 @@ import { Icon } from "@iconify/react"
 import financeApi from "../../api/finance"
 
 const CATEGORIES=["salary","office","marketing","tools","travel","other"]
-const DEPARTMENTS=["sales","tech","seo"]
 const CAT_COLORS={salary:"bg-blue-50 text-blue-600",office:"bg-purple-50 text-purple-600",marketing:"bg-pink-50 text-pink-600",tools:"bg-teal-50 text-teal-600",travel:"bg-orange-50 text-orange-600",other:"bg-gray-100 text-gray-500"}
 
 export default function ExpenseList() {
@@ -29,7 +28,7 @@ export default function ExpenseList() {
       <div className="bg-white rounded-2xl p-4 mb-5 flex items-center justify-between"><span className="text-sm text-gray-500">Total Expenses</span><span className="text-lg font-bold text-gray-900">${fmt(total)}</span></div>
       <div className="bg-white rounded-2xl p-4 mb-5 flex items-center gap-3">
         <div className="relative"><select value={categoryF} onChange={e=>setCategoryF(e.target.value)} className="appearance-none border border-gray-200 rounded-xl px-4 py-2 pr-8 text-sm text-gray-600 outline-none bg-white"><option value="">All Categories</option>{CATEGORIES.map(c=><option key={c} value={c} className="capitalize">{c}</option>)}</select><ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"/></div>
-        <div className="relative"><select value={deptF} onChange={e=>setDeptF(e.target.value)} className="appearance-none border border-gray-200 rounded-xl px-4 py-2 pr-8 text-sm text-gray-600 outline-none bg-white"><option value="">All Departments</option>{DEPARTMENTS.map(d=><option key={d} value={d} className="capitalize">{d}</option>)}</select><ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none"/></div>
+        
       </div>
       <div className="bg-white rounded-2xl overflow-hidden">
         {loading?<div className="flex items-center justify-center h-48"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"/></div>

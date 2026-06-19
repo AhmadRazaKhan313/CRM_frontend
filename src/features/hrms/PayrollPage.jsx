@@ -166,8 +166,9 @@ export default function PayrollPage() {
   const [selected, setSelected] = useState(null)
   const [marking, setMarking] = useState(false)
 
-  const isEmployee = ["lead_employee", "sales_employee"].includes(user?.role)
-  const canManage = ["ceo", "coo"].includes(user?.role) || user?.is_super_admin
+  const hasPermission = useAuthStore((s) => s.hasPermission)
+  const isEmployee = !user?.is_super_admin && !hasPermission("hrms.edit")
+  const canManage = user?.is_super_admin || hasPermission("hrms.edit")
 
   const months = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
