@@ -7,7 +7,6 @@ import useRoleStore from "../../store/roleStore"
 const moduleColors = {
   leads: "bg-blue-50 text-blue-600",
   clients: "bg-green-50 text-green-600",
-  sales: "bg-yellow-50 text-yellow-600",
   tasks: "bg-purple-50 text-purple-600",
   reports: "bg-orange-50 text-orange-600",
   finance: "bg-red-50 text-red-600",
@@ -15,6 +14,9 @@ const moduleColors = {
   departments: "bg-pink-50 text-pink-600",
   delivery: "bg-teal-50 text-teal-600",
   analytics: "bg-cyan-50 text-cyan-600",
+  hrms: "bg-rose-50 text-rose-600",
+  roles: "bg-slate-100 text-slate-600",
+  notifications: "bg-amber-50 text-amber-600",
   settings: "bg-gray-100 text-gray-600",
 }
 
@@ -72,11 +74,7 @@ export default function RoleList() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold text-gray-900">{role.name}</h3>
-                    {role.is_system && (
-                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">
-                        System
-                      </span>
-                    )}
+                    
                   </div>
                   {role.description && (
                     <p className="text-xs text-gray-400 mt-0.5">{role.description}</p>
@@ -85,7 +83,7 @@ export default function RoleList() {
                     {role.user_count} {role.user_count === 1 ? "user" : "users"} assigned
                   </p>
                 </div>
-                {!role.is_system && (
+                {(true) && (
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => navigate(`/roles/${role.id}/edit`)}

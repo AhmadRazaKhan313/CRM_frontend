@@ -5,12 +5,6 @@ import { Icon } from "@iconify/react"
 import employeesApi from "../../api/employees"
 import useEmployeeStore from "../../store/employeeStore"
 
-const DEPARTMENTS = ["sales", "tech", "seo"]
-const ROLES = [
-  "coo", "dept_head", "sales_director",
-  "lead_manager", "sales_manager", "lead_employee", "sales_employee"
-]
-
 const deptColors = {
   sales : "bg-blue-50 text-blue-600",
   tech: "bg-purple-50 text-purple-600",
@@ -67,34 +61,6 @@ export default function EmployeeList() {
             className="flex-1 text-sm text-gray-700 placeholder-gray-300 outline-none"
           />
         </div>
-
-        <div className="relative">
-          <select
-            value={filters.department}
-            onChange={(e) => setFilters({ department: e.target.value })}
-            className="appearance-none border border-gray-200 rounded-xl px-4 py-2 pr-8 text-sm text-gray-600 outline-none focus:border-primary bg-white"
-          >
-            <option value="">All Departments</option>
-            {DEPARTMENTS.map((d) => (
-              <option key={d} value={d} className="capitalize">{d}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-        </div>
-
-        <div className="relative">
-          <select
-            value={filters.role}
-            onChange={(e) => setFilters({ role: e.target.value })}
-            className="appearance-none border border-gray-200 rounded-xl px-4 py-2 pr-8 text-sm text-gray-600 outline-none focus:border-primary bg-white"
-          >
-            <option value="">All Roles</option>
-            {ROLES.map((r) => (
-              <option key={r} value={r}>{r.replace("_", " ")}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-        </div>
       </div>
 
       {/* Table */}
@@ -114,9 +80,7 @@ export default function EmployeeList() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Employee</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Department</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Role</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Custom Roles</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Roles</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Status</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Actions</th>
               </tr>
@@ -140,20 +104,6 @@ export default function EmployeeList() {
                         <p className="text-xs text-gray-400">{emp.email}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    {emp.department ? (
-                      <span className={`text-xs px-2.5 py-1 rounded-lg font-medium capitalize ${deptColors[emp.department] || "bg-gray-100 text-gray-500"}`}>
-                        {emp.department}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-300">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span className={`text-xs px-2.5 py-1 rounded-lg font-medium capitalize ${roleColors[emp.role] || "bg-gray-100 text-gray-500"}`}>
-                      {emp.role_display}
-                    </span>
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex flex-wrap gap-1">

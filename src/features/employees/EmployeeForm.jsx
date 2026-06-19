@@ -1,44 +1,13 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { User, Mail, Lock, Phone, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import employeesApi from "../../api/employees"
 import rolesApi from "../../api/roles"
-
-const DEPARTMENTS = ["sales", "tech", "seo"]
-const ROLES = [
-  { value: "coo", label: "COO" },
-  { value: "dept_head", label: "Department Head" },
-  { value: "sales_director", label: "Sales Director" },
-  { value: "lead_manager", label: "Lead Manager" },
-  { value: "sales_manager", label: "Sales Manager" },
-  { value: "lead_employee", label: "Lead Employee" },
-  { value: "sales_employee", label: "Sales Employee" },
-]
+import departmentsApi from "../../api/departments"
 
 const initialForm = {
   full_name: "", email: "", phone: "",
-  password: "", role: "", department: "", role_ids: []
-}
-
-function SelectField({ label, value, onChange, options, placeholder }) {
-  return (
-    <div>
-      <label className="block text-xs text-gray-400 mb-1.5">{label}</label>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 bg-white outline-none focus:border-primary transition-colors pr-9"
-        >
-          <option value="">{placeholder}</option>
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-      </div>
-    </div>
-  )
+  password: "", role_ids: [],
 }
 
 function InputField({ label, value, onChange, placeholder, type = "text" }) {
@@ -58,34 +27,36 @@ function InputField({ label, value, onChange, placeholder, type = "text" }) {
 
 export default function EmployeeForm() {
   const navigate = useNavigate()
-  const { id } = useParams()
-  const isEdit = Boolean(id)
+  const { id }   = useParams()
+  const isEdit   = Boolean(id)
 
-  const [form, setForm] = useState(initialForm)
-  const [customRoles, setCustomRoles] = useState([])
+  const [form, setForm]     = useState(initialForm)
+  const [roles, setRoles]   = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError]   = useState("")
 
   const set = (field) => (val) => setForm((prev) => ({ ...prev, [field]: val }))
 
   useEffect(() => {
-    rolesApi.list().then(({ data }) => setCustomRoles(data))
+    // Saare custom roles is organization ke
+    rolesApi.list()
+      .then(({ data }) => setRoles(data))
+      .catch(() => setRoles([]))
+
     if (isEdit) {
       employeesApi.get(id).then(({ data }) => {
         setForm({
           full_name: data.full_name,
-          email: data.email,
-          phone: data.phone || "",
-          password: "",
-          role: data.role,
-          department: data.department || "",
-          role_ids: [],
+          email:     data.email,
+          phone:     data.phone || "",
+          password:  "",
+          role_ids:  [],
         })
       })
     }
   }, [id])
 
-  const toggleCustomRole = (roleId) => {
+  const toggleRole = (roleId) => {
     setForm((prev) => {
       const ids = prev.role_ids.includes(roleId)
         ? prev.role_ids.filter((r) => r !== roleId)
@@ -96,19 +67,19 @@ export default function EmployeeForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.role) {
-      setError("Please select a system role.")
+
+    if (!isEdit && form.role_ids.length === 0) {
+      setError("Please assign at least one role.")
       return
     }
+
     setLoading(true)
     setError("")
     try {
       if (isEdit) {
         await employeesApi.update(id, {
           full_name: form.full_name,
-          phone: form.phone,
-          role: form.role,
-          department: form.department,
+          phone:     form.phone,
         })
       } else {
         await employeesApi.create(form)
@@ -116,9 +87,9 @@ export default function EmployeeForm() {
       navigate("/employees")
     } catch (err) {
       const detail = err.response?.data
-      if (typeof detail === "object") {
+      if (typeof detail === "object" && detail !== null) {
         const first = Object.values(detail)[0]
-        setError(Array.isArray(first) ? first[0] : first)
+        setError(Array.isArray(first) ? first[0] : String(first))
       } else {
         setError("Something went wrong.")
       }
@@ -151,48 +122,49 @@ export default function EmployeeForm() {
           </div>
         </div>
 
-        {/* Role & Department */}
-        <div className="bg-white rounded-2xl p-5 space-y-4">
-          <p className="text-sm font-semibold text-gray-800">Role & Department</p>
-          <div className="grid grid-cols-2 gap-4">
-            <SelectField
-              label="System Role"
-              value={form.role}
-              onChange={set("role")}
-              options={ROLES}
-              placeholder="Select role"
-            />
-            <SelectField
-              label="Department"
-              value={form.department}
-              onChange={set("department")}
-              options={DEPARTMENTS.map((d) => ({ value: d, label: d.charAt(0).toUpperCase() + d.slice(1) }))}
-              placeholder="Select department"
-            />
-          </div>
-        </div>
-
-        {/* Custom Roles */}
-        {!isEdit && customRoles.length > 0 && (
+        {/* Roles — custom roles only, required */}
+        {!isEdit && (
           <div className="bg-white rounded-2xl p-5">
-            <p className="text-sm font-semibold text-gray-800 mb-3">Custom Roles</p>
-            <p className="text-xs text-gray-400 mb-3">Assign additional custom roles to this employee</p>
-            <div className="flex flex-wrap gap-2">
-              {customRoles.map((role) => (
+            <p className="text-sm font-semibold text-gray-800 mb-1">Assign Roles <span className="text-red-500">*</span></p>
+            <p className="text-xs text-gray-400 mb-3">Har employee ko kam se kam ek role chahiye. Role permissions decide karta hai.</p>
+
+            {roles.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-sm text-gray-400">No roles created yet.</p>
                 <button
-                  key={role.id}
                   type="button"
-                  onClick={() => toggleCustomRole(role.id)}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${
-                    form.role_ids.includes(role.id)
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-gray-200 text-gray-500 hover:border-gray-300"
-                  }`}
+                  onClick={() => navigate("/roles/new")}
+                  className="mt-2 text-xs text-primary font-medium hover:underline"
                 >
-                  {role.name}
+                  Create a role first
                 </button>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {roles.map((role) => (
+                  <button
+                    key={role.id}
+                    type="button"
+                    onClick={() => toggleRole(role.id)}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${
+                      form.role_ids.includes(role.id)
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-gray-200 text-gray-500 hover:border-gray-300"
+                    }`}
+                  >
+                    {role.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {isEdit && (
+          <div className="bg-white rounded-2xl p-5">
+            <p className="text-xs text-gray-400">
+              Roles ko edit karne ke liye employee detail page pe jao.
+            </p>
           </div>
         )}
 

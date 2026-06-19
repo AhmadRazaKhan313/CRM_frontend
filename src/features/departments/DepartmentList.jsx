@@ -15,9 +15,10 @@ export default function DepartmentList() {
   const navigate = useNavigate()
   const { departments, loading, fetch } = useDepartmentStore()
   const { user } = useAuthStore()
+  const hasPermission = useAuthStore((s) => s.hasPermission)
 
   // ✅ FIX: is_super_admin also has access
-  const canAdd = user?.is_super_admin || user?.role === "ceo" || user?.role === "coo"
+  const canAdd = user?.is_super_admin || hasPermission("departments.create")
 
   useEffect(() => { fetch() }, [])
 

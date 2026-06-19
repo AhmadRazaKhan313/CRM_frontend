@@ -4,8 +4,9 @@ import { ChevronDown, ChevronRight } from "lucide-react"
 import rolesApi from "../../api/roles"
 
 const MODULES = [
-  "leads", "clients", "sales", "tasks", "reports",
-  "finance", "employees", "departments", "delivery", "analytics", "settings"
+  "leads", "clients", "tasks", "reports", "finance",
+  "employees", "departments", "delivery", "analytics",
+  "hrms", "roles", "notifications", "settings",
 ]
 
 export default function RoleForm() {

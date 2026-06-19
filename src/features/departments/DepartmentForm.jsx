@@ -1,41 +1,28 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, ChevronDown } from "lucide-react"
-import { Icon } from "@iconify/react"
 import departmentsApi from "../../api/departments"
 import employeesApi from "../../api/employees"
-import useDepartmentStore from "../../store/departmentStore"
 
-const TYPES = ["sales", "tech", "seo"]
-
-const typeIcons = {
-  sales: "lucide:trending-up",
-  tech:  "lucide:code-2",
-  seo:   "lucide:search",
-}
-
-const initialForm = { name: "", type: "", description: "", head: "" }
+const initialForm = { name: "", description: "", head: "" }
 
 export default function DepartmentForm() {
   const navigate = useNavigate()
   const { id }   = useParams()
   const isEdit   = Boolean(id)
 
-  const { add, update } = useDepartmentStore()
   const [form,      setForm]      = useState(initialForm)
   const [employees, setEmployees] = useState([])
   const [loading,   setLoading]   = useState(false)
   const [error,     setError]     = useState("")
 
   useEffect(() => {
-    employeesApi.list().then(({ data }) => setEmployees(data))
+    employeesApi.list().then(({ data }) => setEmployees(data)).catch(() => setEmployees([]))
 
-    // ✅ Edit mode — load existing data
     if (isEdit) {
       departmentsApi.get(id).then(({ data }) => {
         setForm({
           name:        data.name        || "",
-          type:        data.type        || "",
           description: data.description || "",
           head:        data.head        || "",
         })
@@ -48,21 +35,22 @@ export default function DepartmentForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) { setError("Department name is required."); return }
-    if (!form.type)        { setError("Department type is required."); return }
     setLoading(true)
     setError("")
+
+    // head khali ho to null bhejo
+    const payload = { ...form, head: form.head || null }
+
     try {
       if (isEdit) {
-        const { data } = await departmentsApi.update(id, form)
-        update(id, data)
+        await departmentsApi.update(id, payload)
       } else {
-        const { data } = await departmentsApi.create(form)
-        add(data)
+        await departmentsApi.create(payload)
       }
       navigate("/departments")
     } catch (err) {
       const detail = err.response?.data
-      if (typeof detail === "object") {
+      if (typeof detail === "object" && detail !== null) {
         const first = Object.values(detail)[0]
         setError(Array.isArray(first) ? first[0] : String(first))
       } else {
@@ -91,14 +79,8 @@ export default function DepartmentForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Basic Info */}
         <div className="bg-white rounded-2xl p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-6 h-6 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center shrink-0">1</div>
-            <p className="text-sm font-semibold text-gray-800">Basic Information</p>
-            <div className="flex-1 h-px bg-gray-100" />
-          </div>
-
+          <p className="text-sm font-semibold text-gray-800 mb-4">Department Details</p>
           {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
           <div className="space-y-4">
@@ -107,30 +89,9 @@ export default function DepartmentForm() {
               <input
                 value={form.name}
                 onChange={set("name")}
-                placeholder="e.g. Tech Department"
+                placeholder="e.g. Marketing, Development, Support"
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-300 outline-none focus:border-primary transition-colors"
               />
-            </div>
-
-            <div>
-              <label className="block text-xs text-gray-400 mb-2">Department Type *</label>
-              <div className="flex gap-3">
-                {TYPES.map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setForm((p) => ({ ...p, type }))}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all capitalize flex-1 justify-center ${
-                      form.type === type
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-gray-200 text-gray-500 hover:border-gray-300"
-                    }`}
-                  >
-                    <Icon icon={typeIcons[type]} className="w-4 h-4" />
-                    {type.toUpperCase()}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div>
@@ -143,35 +104,28 @@ export default function DepartmentForm() {
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-300 outline-none focus:border-primary transition-colors resize-none"
               />
             </div>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Department Head</label>
+              <div className="relative">
+                <select
+                  value={form.head}
+                  onChange={set("head")}
+                  className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 bg-white outline-none focus:border-primary transition-colors pr-9"
+                >
+                  <option value="">Select department head (optional)</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.full_name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Head Assignment */}
-        <div className="bg-white rounded-2xl p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-6 h-6 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center shrink-0">2</div>
-            <p className="text-sm font-semibold text-gray-800">Department Head</p>
-            <div className="flex-1 h-px bg-gray-100" />
-          </div>
-
-          <div className="relative">
-            <select
-              value={form.head}
-              onChange={set("head")}
-              className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 bg-white outline-none focus:border-primary transition-colors pr-9"
-            >
-              <option value="">Select department head (optional)</option>
-              {employees.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.full_name} — {emp.role_display}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Actions */}
         <div className="flex items-center justify-end gap-3 pb-6">
           <button
             type="button"

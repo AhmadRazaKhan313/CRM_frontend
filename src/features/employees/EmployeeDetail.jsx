@@ -39,6 +39,7 @@ export default function EmployeeDetail() {
   const { id }     = useParams()
   const navigate   = useNavigate()
   const user       = useAuthStore((s) => s.user)
+  const hasPermission = useAuthStore((s) => s.hasPermission)
   const [emp, setEmp]         = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -47,7 +48,7 @@ export default function EmployeeDetail() {
   const [pwLoading,    setPwLoading]    = useState(false)
   const [pwMsg,        setPwMsg]        = useState({ text: "", type: "" })
 
-  const canManage = user?.is_super_admin || ["ceo", "coo", "dept_head"].includes(user?.role)
+  const canManage = user?.is_super_admin || hasPermission("employees.edit")
 
   useEffect(() => {
     employeesApi.get(id)
@@ -134,13 +135,8 @@ export default function EmployeeDetail() {
               <div>
                 <p className="text-lg font-bold text-gray-900">{emp.full_name}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  {emp.department && (
-                    <span className={`text-xs px-2.5 py-1 rounded-lg font-medium capitalize ${deptColors[emp.department] || "bg-gray-100 text-gray-500"}`}>
-                      {emp.department}
-                    </span>
-                  )}
-                  <span className={`text-xs px-2.5 py-1 rounded-lg font-medium capitalize ${roleColors[emp.role] || "bg-gray-100 text-gray-500"}`}>
-                    {emp.role_display}
+                  <span className="text-xs px-2.5 py-1 rounded-lg font-medium bg-primary/10 text-primary">
+                    {(emp.roles || []).join(', ') || 'No role'}
                   </span>
                 </div>
               </div>
@@ -149,8 +145,7 @@ export default function EmployeeDetail() {
             <InfoRow icon={Mail}       label="Email"       value={emp.email} />
             <InfoRow icon={Phone}      label="Phone"       value={emp.phone} />
             <InfoRow icon={BadgeCheck} label="Employee ID" value={emp.employee_id} />
-            <InfoRow icon={Building2}  label="Department"  value={emp.department} />
-            <InfoRow icon={Shield}     label="Role"        value={emp.role_display} />
+            <InfoRow icon={Shield}     label="Role"        value={(emp.roles || []).join(', ') || '—'} />
           </div>
 
           {/* Custom Roles */}
